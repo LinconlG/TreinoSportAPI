@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Services;
 
 namespace TreinoSportAPI.Controllers {
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class UsuarioController : ControllerBase {
 
         private readonly UsuarioService _usuarioService;
@@ -14,7 +15,7 @@ namespace TreinoSportAPI.Controllers {
             _usuarioService = usuarioService;
         }
 
-        [HttpPut("cadastrar")] 
+        [HttpPut("cadastrar")]
         public async Task<ActionResult> PutCadastrarUsuario([FromBody] Usuario usuario) {
 
             try {
