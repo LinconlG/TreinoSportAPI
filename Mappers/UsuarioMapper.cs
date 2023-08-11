@@ -17,5 +17,26 @@ namespace TreinoSportAPI.Mappers {
 
             await NonQuery(sql, parametros);
         }
+
+        public async Task<bool> ChecarEmail(string email) {
+            string sql = @"
+                    SELECT 
+                        USEMAIL
+                    FROM USUARIO
+                    WHERE
+                        USEMAIL = @email
+            ";
+
+            var parametros = new List<(string, object)> {
+                ("email", email)
+            };
+
+            var dr = Query(sql, parametros);
+
+            if (await dr.ReadAsync()) {
+                return true;
+            }
+            return false;
+        }
     }
 }

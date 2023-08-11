@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Services;
 
@@ -23,7 +24,20 @@ namespace TreinoSportAPI.Controllers {
                 return Ok();
             }
             catch (Exception e) {
-                throw new Exception(e.Message);
+                throw new Exception(e.Message, e.InnerException);
+            }
+
+        }
+
+        [HttpGet("email")]
+        public async Task<ActionResult<bool>> GetChecarEmail([FromQuery(Name = "email")][Required] string email) {
+
+            try {
+                var resultado = await _usuarioService.ChecarEmail(email);
+                return Ok(resultado);
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException);
             }
 
         }
