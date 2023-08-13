@@ -14,8 +14,10 @@ builder.Services.AddAuthentication(
     .AddCertificate();
 
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<LoginService>();
 
 builder.Services.AddScoped<UsuarioMapper>();
+builder.Services.AddScoped<LoginMapper>();
 UtilEnvironment.Load(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
