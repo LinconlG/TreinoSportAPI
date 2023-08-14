@@ -7,8 +7,8 @@ namespace TreinoSportAPI.Services {
             _loginMapper = loginMapper;
         }
 
-        public async Task Login(string email, string senha) {
-            await _loginMapper.CheckLogin(email, senha);
+        public async Task<int> Login(string email, string senha) {
+            return await _loginMapper.CheckLogin(email, senha);
         }
     }
 }

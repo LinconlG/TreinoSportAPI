@@ -1,9 +1,10 @@
-﻿using TreinoSportAPI.Mappers.Connection;
+﻿using System.Data;
+using TreinoSportAPI.Mappers.Connection;
 
 namespace TreinoSportAPI.Mappers {
     public class LoginMapper : BaseMapper {
 
-        public async Task CheckLogin(string email, string senha) {
+        public async Task<int> CheckLogin(string email, string senha) {
             string sql = @"
                     SELECT
                         USCODUSUARIO
@@ -18,7 +19,7 @@ namespace TreinoSportAPI.Mappers {
             var dr = Query(sql, parametros);
 
             if (await dr.ReadAsync()) {
-                return;
+                return dr.GetInt32("USCODUSUARIO");
             }
             throw new KeyNotFoundException();
         }

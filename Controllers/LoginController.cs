@@ -14,10 +14,10 @@ namespace TreinoSportAPI.Controllers {
         }
 
         [HttpGet]
-        public async Task<ActionResult> Login([FromQuery(Name = "email")] string email, [FromQuery(Name = "senha")] string senha) {
+        public async Task<ActionResult<int>> Login([FromQuery(Name = "email")] string email, [FromQuery(Name = "senha")] string senha) {
             try {
-                await _loginService.Login(email, senha);
-                return Ok();
+                var codigoUsuario = await _loginService.Login(email, senha);
+                return Ok(codigoUsuario);
             }
             catch (Exception e) {
                 throw new Exception(e.Message, e.InnerException);
