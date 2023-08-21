@@ -10,14 +10,14 @@ namespace TreinoSportAPI.Controllers {
     [Route("api/[controller]")]
     public class UsuarioController : ControllerBase {
 
-        private readonly UsuarioService _usuarioService;
+        private readonly ContaService _usuarioService;
 
-        public UsuarioController(UsuarioService usuarioService) {
+        public UsuarioController(ContaService usuarioService) {
             _usuarioService = usuarioService;
         }
 
         [HttpPut("cadastrar")]
-        public async Task<ActionResult> PutCadastrarUsuario([FromBody] Usuario usuario) {
+        public async Task<ActionResult> PutCadastrarUsuario([FromBody] Conta usuario) {
 
             try {
                 await _usuarioService.CadastrarUsuario(usuario);

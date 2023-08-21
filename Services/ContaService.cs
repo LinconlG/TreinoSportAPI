@@ -2,15 +2,15 @@
 using TreinoSportAPI.Models;
 
 namespace TreinoSportAPI.Services {
-    public class UsuarioService {
+    public class ContaService {
 
-        private readonly UsuarioMapper _usuarioMapper;
+        private readonly ContaMapper _usuarioMapper;
 
-        public UsuarioService(UsuarioMapper usuarioMapper) {
+        public ContaService(ContaMapper usuarioMapper) {
             _usuarioMapper = usuarioMapper;
         }
 
-        public async Task CadastrarUsuario(Usuario usuario) {
+        public async Task CadastrarUsuario(Conta usuario) {
             await _usuarioMapper.CadastrarUsuario(usuario);
         }
 

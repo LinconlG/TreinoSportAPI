@@ -1,4 +1,5 @@
 ﻿using TreinoSportAPI.Mappers;
+using TreinoSportAPI.Models;
 
 namespace TreinoSportAPI.Services {
     public class LoginService {
@@ -7,7 +8,7 @@ namespace TreinoSportAPI.Services {
             _loginMapper = loginMapper;
         }
 
-        public async Task<int> Login(string email, string senha) {
+        public async Task<Conta> Login(string email, string senha) {
             return await _loginMapper.CheckLogin(email, senha);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using TreinoSportAPI.Models;
 using TreinoSportAPI.Services;
 
 namespace TreinoSportAPI.Controllers {
@@ -14,7 +15,7 @@ namespace TreinoSportAPI.Controllers {
         }
 
         [HttpGet]
-        public async Task<ActionResult<int>> Login([FromQuery(Name = "email")] string email, [FromQuery(Name = "senha")] string senha) {
+        public async Task<ActionResult<Conta>> Login([FromQuery(Name = "email")] string email, [FromQuery(Name = "senha")] string senha) {
             try {
                 var codigoUsuario = await _loginService.Login(email, senha);
                 return Ok(codigoUsuario);

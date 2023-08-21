@@ -13,11 +13,11 @@ builder.Services.AddAuthentication(
         CertificateAuthenticationDefaults.AuthenticationScheme)
     .AddCertificate();
 
-builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<ContaService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<TreinoService>();
 
-builder.Services.AddScoped<UsuarioMapper>();
+builder.Services.AddScoped<ContaMapper>();
 builder.Services.AddScoped<LoginMapper>();
 builder.Services.AddScoped<TreinoMapper>();
 

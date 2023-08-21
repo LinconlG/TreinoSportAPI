@@ -2,17 +2,19 @@
 using TreinoSportAPI.Models;
 
 namespace TreinoSportAPI.Mappers {
-    public class UsuarioMapper : BaseMapper {
+    public class ContaMapper : BaseMapper {
 
-        public async Task CadastrarUsuario(Usuario usuario) {
+        public async Task CadastrarUsuario(Conta usuario) {
 
-            string sql = @"INSERT INTO USUARIO(USEMAIL, USNOMEUSUARIO, USSENHA)
-                        VALUES (@email, @nome, @senha)
+            string sql = @"INSERT INTO CONTA(COEMAIL, CODESCRICAO, CONOMECONTA, COSENHA, COISCENTRO)
+                        VALUES (@email, @descricao, @nome, @senha, @isCentro)
             ";
             var parametros = new List<(string, object)> {
                 ("email", usuario.Email),
                 ("nome", usuario.Nome),
-                ("senha", usuario.Senha)
+                ("senha", usuario.Senha),
+                ("descricao", usuario.Senha),
+                ("isCentro", usuario.Senha)
             };
 
             await NonQuery(sql, parametros);
@@ -21,10 +23,10 @@ namespace TreinoSportAPI.Mappers {
         public async Task<bool> ChecarEmail(string email) {
             string sql = @"
                     SELECT 
-                        USEMAIL
-                    FROM USUARIO
+                        COEMAIL
+                    FROM CONTA
                     WHERE
-                        USEMAIL = @email
+                        COEMAIL = @email
             ";
 
             var parametros = new List<(string, object)> {
