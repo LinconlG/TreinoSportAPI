@@ -15,9 +15,9 @@ namespace TreinoSportAPI.Controllers {
         }
 
         [HttpGet("todos")]
-        public async Task<ActionResult<List<Treino>>> GetTreinosAluno([FromQuery(Name = "codigoUsuario")] int codigoUsuario) {
+        public async Task<ActionResult<List<Treino>>> GetTreinosComoAluno([FromQuery(Name = "codigoUsuario")] int codigoUsuario) {
             try {
-                var lista = await _treinoService.GetTreinosAluno(codigoUsuario);
+                var lista = await _treinoService.GetTreinosComoAluno(codigoUsuario);
                 return Ok(lista);
             }
             catch (Exception e) {

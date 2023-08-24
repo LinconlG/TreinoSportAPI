@@ -5,19 +5,22 @@ using TreinoSportAPI.Models;
 namespace TreinoSportAPI.Mappers {
     public class TreinoMapper : BaseMapper {
 
-        public async Task<List<Treino>> GetTreinosAluno(int codigoUsuario) {
+        public async Task<List<Treino>> GetTreinosComoAluno(int codigoUsuario) {
 
             var listaTreinos = new List<Treino>();
 
             string sql = @"
                         SELECT
+                        TRCODTREINO,
                         TRNOMETREINO,
+                        CO.CONOMECONTA,
                         TRDESCRICAOTREINO,    
-                        TRDATATREINOS
+                        TRDATACRIACAO,
+                        TRDATAVENCIMENTO,
+                        TRMODALIDADE
                         FROM TREINO
-                        INNER JOIN TREINOUSUARIO TU ON TU.TUCODUSUARIO = @obj1 AND TU.TUTIPOUSUARIO = 0
-                        WHERE
-                        TRCODTREINO = TU.TUCODTREINO    
+                        INNER JOIN CONTA CO ON CO.COCODCONTA = TRCODCRIADOR
+                        INNER JOIN TREINOALUNO TA ON TA.TACODALUNO = @obj0 AND TA.TACODTREINO = TRCODTREINO
             ";
 
             var parametros = Parametros.Parametrizar(new List<object> { codigoUsuario });
@@ -28,6 +31,8 @@ namespace TreinoSportAPI.Mappers {
                 var treino = new Treino();
                 treino.Nome = dr.GetString("TRNOMETREINO");
                 treino.Descricao = dr.GetString("TRDESCRICAOTREINO");
+                treino.Criador = new();
+                treino.Criador.Nome = dr.GetString("CONOMECONTA");
                 listaTreinos.Add(treino);
             }
             return listaTreinos;
