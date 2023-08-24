@@ -13,8 +13,8 @@ namespace TreinoSportAPI.Mappers {
                 ("email", usuario.Email),
                 ("nome", usuario.Nome),
                 ("senha", usuario.Senha),
-                ("descricao", usuario.Senha),
-                ("isCentro", usuario.Senha)
+                ("descricao", usuario.Descricao),
+                ("isCentro", usuario.IsCentroTreinamento)
             };
 
             await NonQuery(sql, parametros);
