@@ -10,8 +10,12 @@ namespace TreinoSportAPI.Services {
             _treinoMapper = treinoMapper;
         }
 
-        public async Task<List<Treino>> GetTreinosComoAluno(int codigoUsuario) {
-            return await _treinoMapper.GetTreinosComoAluno(codigoUsuario);
+        public Task<List<Treino>> GetTreinosComoAluno(int codigoUsuario) {
+            return _treinoMapper.GetTreinosComoAluno(codigoUsuario);
+        }
+
+        public Task<List<Treino>> GetTreinosComoCT(int codigoCT) {
+            return _treinoMapper.GetTreinosComoCT(codigoCT);
         }
     }
 }

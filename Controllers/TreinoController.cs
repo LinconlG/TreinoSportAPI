@@ -14,10 +14,21 @@ namespace TreinoSportAPI.Controllers {
             _treinoService = treinoService;
         }
 
-        [HttpGet("todos")]
+        [HttpGet("aluno/todos")]
         public async Task<ActionResult<List<Treino>>> GetTreinosComoAluno([FromQuery(Name = "codigoUsuario")] int codigoUsuario) {
             try {
                 var lista = await _treinoService.GetTreinosComoAluno(codigoUsuario);
+                return Ok(lista);
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException);
+            }
+        }
+
+        [HttpGet("ct/todos")]
+        public async Task<ActionResult<List<Treino>>> GetTreinosComoCT([FromQuery(Name = "codigoCT")] int codigoCT) {
+            try {
+                var lista = await _treinoService.GetTreinosComoCT(codigoCT);
                 return Ok(lista);
             }
             catch (Exception e) {
