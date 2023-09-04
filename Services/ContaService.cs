@@ -10,8 +10,13 @@ namespace TreinoSportAPI.Services {
             _usuarioMapper = usuarioMapper;
         }
 
-        public async Task CadastrarUsuario(Conta usuario) {
+        public async Task<bool> CadastrarUsuario(Conta usuario) {
+            var emailExiste = await _usuarioMapper.ChecarEmail(usuario.Email);
+            if (emailExiste) {
+                return true;
+            }
             await _usuarioMapper.CadastrarUsuario(usuario);
+            return false;
         }
 
         public async Task<bool> ChecarEmail(string email) {

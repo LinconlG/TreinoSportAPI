@@ -17,11 +17,11 @@ namespace TreinoSportAPI.Controllers {
         }
 
         [HttpPut("cadastrar")]
-        public async Task<ActionResult> PutCadastrarUsuario([FromBody] Conta usuario) {
+        public async Task<ActionResult<bool>> PutCadastrarUsuario([FromBody] Conta usuario) {
 
             try {
-                await _usuarioService.CadastrarUsuario(usuario);
-                return Ok();
+                var emailExiste = await _usuarioService.CadastrarUsuario(usuario);
+                return Ok(emailExiste);
             }
             catch (Exception e) {
                 throw new Exception(e.Message, e.InnerException);
