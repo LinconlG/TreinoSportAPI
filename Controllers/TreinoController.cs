@@ -46,5 +46,16 @@ namespace TreinoSportAPI.Controllers {
                 throw new Exception(e.Message, e.InnerException);
             }
         }
+
+        [HttpPatch("ct/horarios")]
+        public async Task<ActionResult> PatchHorarios([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromBody] List<DiaDaSemana> diasDaSemana) {
+            try {
+                await _treinoService.AtualizarHorarios(codigoTreino, diasDaSemana);
+                return Ok();
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException);
+            }
+        }
     }
 }
