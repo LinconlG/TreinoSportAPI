@@ -5,9 +5,11 @@ namespace TreinoSportAPI.Services {
     public class ContaService {
 
         private readonly ContaMapper _usuarioMapper;
+        private readonly TreinoService _treinoService;
 
-        public ContaService(ContaMapper usuarioMapper) {
+        public ContaService(ContaMapper usuarioMapper, TreinoService treinoService) {
             _usuarioMapper = usuarioMapper;
+            _treinoService = treinoService;
         }
 
         public async Task<bool> CadastrarUsuario(Conta usuario) {
@@ -15,7 +17,11 @@ namespace TreinoSportAPI.Services {
             if (emailExiste) {
                 return true;
             }
-            await _usuarioMapper.CadastrarUsuario(usuario);
+
+            var codigoConta = await _usuarioMapper.CadastrarUsuario(usuario);
+            if (usuario.IsCentroTreinamento) {
+                await _treinoService.InserirHorarios(codigoConta, new List<DiaDaSemana>());
+            }
             return false;
         }
 

@@ -35,5 +35,16 @@ namespace TreinoSportAPI.Controllers {
                 throw new Exception(e.Message, e.InnerException);
             }
         }
+
+        [HttpGet("ct/horarios")]
+        public async Task<ActionResult<List<Treino>>> GetHorarios([FromQuery(Name = "codigoTreino")] int codigoTreino) {
+            try {
+                var listaHorarios = await _treinoService.BuscarHorarios(codigoTreino);
+                return Ok(listaHorarios);
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException);
+            }
+        }
     }
 }

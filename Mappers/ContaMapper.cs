@@ -1,12 +1,14 @@
-﻿using TreinoSportAPI.Mappers.Connection;
+﻿using System.Data;
+using TreinoSportAPI.Mappers.Connection;
 using TreinoSportAPI.Models;
 
 namespace TreinoSportAPI.Mappers {
     public class ContaMapper : BaseMapper {
 
-        public async Task CadastrarUsuario(Conta usuario) {
+        public async Task<int> CadastrarUsuario(Conta usuario) {
 
             string sql = @"INSERT INTO CONTA(COEMAIL, CODESCRICAO, CONOMECONTA, COSENHA, COISCENTRO)
+                        OUTPUT INSERTED.COCODCONTA
                         VALUES (@email, @descricao, @nome, @senha, @isCentro)
             ";
             var parametros = new List<(string, object)> {
@@ -17,7 +19,12 @@ namespace TreinoSportAPI.Mappers {
                 ("isCentro", usuario.IsCentroTreinamento)
             };
 
-            await NonQuery(sql, parametros);
+            var dr = Query(sql, parametros);
+
+            if (await dr.ReadAsync()) {
+                return dr.GetInt32("COCODCONTA");
+            }
+            throw new Exception("Erro ao cadastrar");
         }
 
         public async Task<bool> ChecarEmail(string email) {

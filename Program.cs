@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Certificate;
+using TreinoSportAPI.MapperNoSQL;
+using TreinoSportAPI.MapperNoSQL.Connection;
 using TreinoSportAPI.Mappers;
 using TreinoSportAPI.Services;
 using TreinoSportAPI.Utilities;
@@ -13,6 +15,8 @@ builder.Services.AddAuthentication(
         CertificateAuthenticationDefaults.AuthenticationScheme)
     .AddCertificate();
 
+builder.Services.AddSingleton<MongoDBConnection>();
+
 builder.Services.AddScoped<ContaService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<TreinoService>();
@@ -20,6 +24,7 @@ builder.Services.AddScoped<TreinoService>();
 builder.Services.AddScoped<ContaMapper>();
 builder.Services.AddScoped<LoginMapper>();
 builder.Services.AddScoped<TreinoMapper>();
+builder.Services.AddScoped<TreinoMapperNoSQL>();
 
 UtilEnvironment.Load(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
