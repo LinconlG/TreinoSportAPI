@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using TreinoSportAPI.Mappers.Connection;
 using TreinoSportAPI.Models;
+using TreinoSportAPI.Models.Enums;
 
 namespace TreinoSportAPI.Mappers {
     public class TreinoMapper : BaseMapper {
@@ -60,6 +61,32 @@ namespace TreinoSportAPI.Mappers {
                 listaTreinos.Add(treino);
             }
             return listaTreinos;
+        }
+        public async Task<Treino> BuscarTreinoPorCodigo(int codigoTreino) {
+
+            string sql = $@"
+                        SELECT
+	                        TRCODTREINO,
+	                        TRDESCRICAOTREINO,
+                            TRDATAVENCIMENTO,
+                            TRMODALIDADE
+                        FROM TREINO
+                        WHERE
+                            TRCODTREINO = @obj0
+            ";
+            var parametros = Parametros.Parametrizar(new List<object> { codigoTreino });
+
+            var dr = Query(sql, parametros);
+
+            if (await dr.ReadAsync()) {
+                var treino = new Treino();
+                treino.Codigo = dr.GetInt32("TRCODTREINO");
+                treino.Descricao = dr.GetString("TRDESCRICAOTREINO");
+                treino.DataVencimento = dr.GetDateTime("TRDATAVENCIMENTO");
+                treino.Modalidade = (ModalidadeTreino) dr.GetByte("TRMODALIDADE");
+                return treino;
+            }
+            return new Treino();
         }
     }
 }

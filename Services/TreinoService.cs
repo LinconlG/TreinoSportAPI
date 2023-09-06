@@ -40,5 +40,11 @@ namespace TreinoSportAPI.Services {
             return _treinoMapperNoSQL.AtualizarHorarios(diaDaSemanaDTO);
         }
 
+        public async Task<Treino> BuscarDetalhesTreino(int codigoTreino) {
+            var treino = await _treinoMapper.BuscarTreinoPorCodigo(codigoTreino);
+            treino.DatasTreinos = await _treinoMapperNoSQL.BuscarHorarios(codigoTreino);
+            return treino;
+        }
+
     }
 }

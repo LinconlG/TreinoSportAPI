@@ -18,10 +18,7 @@ namespace TreinoSportAPI.Services {
                 return true;
             }
 
-            var codigoConta = await _usuarioMapper.CadastrarUsuario(usuario);
-            if (usuario.IsCentroTreinamento) {
-                await _treinoService.InserirHorarios(codigoConta, new List<DiaDaSemana>());
-            }
+            await _usuarioMapper.CadastrarUsuario(usuario);
             return false;
         }
 

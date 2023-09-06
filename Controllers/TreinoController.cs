@@ -57,5 +57,16 @@ namespace TreinoSportAPI.Controllers {
                 throw new Exception(e.Message, e.InnerException);
             }
         }
+
+        [HttpGet("/detalhes")]
+        public async Task<ActionResult<Treino>> GetDetalhesTreino([FromQuery(Name = "codigoTreino")] int codigoTreino) {
+            try {
+                var treino = await _treinoService.BuscarDetalhesTreino(codigoTreino);
+                return Ok(treino);
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException);
+            }
+        }
     }
 }
