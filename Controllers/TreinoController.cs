@@ -47,6 +47,17 @@ namespace TreinoSportAPI.Controllers {
             }
         }
 
+        [HttpPut("ct/criar")]
+        public async Task<ActionResult> PutTreino([FromBody] Treino treino) {
+            try {
+                await _treinoService.InserirTreino(treino);
+                return Ok();
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException);
+            }
+        }
+
         [HttpPatch("ct/horarios")]
         public async Task<ActionResult> PatchHorarios([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromBody] List<DiaDaSemana> diasDaSemana) {
             try {
@@ -58,7 +69,7 @@ namespace TreinoSportAPI.Controllers {
             }
         }
 
-        [HttpGet("/detalhes")]
+        [HttpGet("ct/detalhes")]
         public async Task<ActionResult<Treino>> GetDetalhesTreino([FromQuery(Name = "codigoTreino")] int codigoTreino) {
             try {
                 var treino = await _treinoService.BuscarDetalhesTreino(codigoTreino);

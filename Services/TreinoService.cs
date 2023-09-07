@@ -22,6 +22,14 @@ namespace TreinoSportAPI.Services {
             return _treinoMapper.GetTreinosComoCT(codigoCT);
         }
 
+        public async Task InserirTreino(Treino treino) {
+            var codigoTreino = await _treinoMapper.InserirTreino(treino);
+            if (codigoTreino == 0 ) {
+                throw new Exception("Erro ao inserir treino");
+            }
+            await InserirHorarios(codigoTreino, treino.DatasTreinos);
+        }
+
         public Task InserirHorarios(int codigoTreino, List<DiaDaSemana> dias) {
             var diaDaSemanaDTO = new DiaDaSemanaDTO();
             diaDaSemanaDTO.CodigoTreino = codigoTreino;

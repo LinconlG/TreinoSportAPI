@@ -88,5 +88,37 @@ namespace TreinoSportAPI.Mappers {
             }
             return new Treino();
         }
+        public async Task<int> InserirTreino(Treino treino) {
+            string sql = @"
+                INSERT INTO TREINO 
+                     (
+                         TRNOMETREINO,
+                         TRDESCRICAOTREINO,
+                         TRDATACRIACAO,
+                         TRDATAVENCIMENTO,
+                         TRCODCRIADOR,
+                         TRMODALIDADE
+                     )
+                    OUTPUT INSERTED.TRCODTREINO
+                VALUES
+                    (
+                        @obj0,
+                        @obj1,
+                        @obj2,
+                        @obj3,
+                        @obj4,
+                        @obj5
+                    )
+            ";
+
+            var parametros = Parametros.Parametrizar(new List<object> { treino.Nome, treino.Descricao, DateTime.Now, treino.DataVencimento, treino.Criador.Codigo, treino.Modalidade });
+
+            var dr =Query(sql, parametros);
+
+            if (await dr.ReadAsync()) {
+                return dr.GetInt32("TRCODTREINO");
+            }
+            return 0;
+        }
     }
 }
