@@ -62,14 +62,15 @@ namespace TreinoSportAPI.Mappers {
             }
             return listaTreinos;
         }
-        public async Task<Treino> BuscarTreinoPorCodigo(int codigoTreino) {
+        public async Task<Treino> BuscarDetalhesTreino(int codigoTreino) {
 
             string sql = $@"
                         SELECT
 	                        TRCODTREINO,
 	                        TRDESCRICAOTREINO,
                             TRDATAVENCIMENTO,
-                            TRMODALIDADE
+                            TRMODALIDADE,
+                            TRLIMITEALUNO
                         FROM TREINO
                         WHERE
                             TRCODTREINO = @obj0
@@ -84,6 +85,7 @@ namespace TreinoSportAPI.Mappers {
                 treino.Descricao = dr.GetString("TRDESCRICAOTREINO");
                 treino.DataVencimento = dr.GetDateTime("TRDATAVENCIMENTO");
                 treino.Modalidade = (ModalidadeTreino) dr.GetByte("TRMODALIDADE");
+                treino.LimiteAlunos = dr.GetInt32("TRLIMITEALUNO");
                 return treino;
             }
             return new Treino();
@@ -97,7 +99,8 @@ namespace TreinoSportAPI.Mappers {
                          TRDATACRIACAO,
                          TRDATAVENCIMENTO,
                          TRCODCRIADOR,
-                         TRMODALIDADE
+                         TRMODALIDADE,
+                         TRLIMITEALUNO
                      )
                     OUTPUT INSERTED.TRCODTREINO
                 VALUES
@@ -107,11 +110,12 @@ namespace TreinoSportAPI.Mappers {
                         @obj2,
                         @obj3,
                         @obj4,
-                        @obj5
+                        @obj5,
+                        @obj6
                     )
             ";
 
-            var parametros = Parametros.Parametrizar(new List<object> { treino.Nome, treino.Descricao, DateTime.Now, treino.DataVencimento, treino.Criador.Codigo, treino.Modalidade });
+            var parametros = Parametros.Parametrizar(new List<object> { treino.Nome, treino.Descricao, DateTime.Now, treino.DataVencimento, treino.Criador.Codigo, treino.Modalidade, treino.LimiteAlunos });
 
             var dr =Query(sql, parametros);
 
@@ -126,12 +130,13 @@ namespace TreinoSportAPI.Mappers {
                     SET TRNOMETREINO = @obj0,
                         TRDESCRICAOTREINO = @obj1,
                         TRDATAVENCIMENTO = @obj2,
-                        TRMODALIDADE = @obj3
+                        TRMODALIDADE = @obj3,
+                        TRLIMITEALUNO = @obj4
                     WHERE
-                        TRCODTREINO = @obj4
+                        TRCODTREINO = @obj5
             ";
 
-            var parametros = Parametros.Parametrizar(new List<object> { treino.Nome, treino.Descricao, treino.DataVencimento, treino.Modalidade, treino.Codigo });
+            var parametros = Parametros.Parametrizar(new List<object> { treino.Nome, treino.Descricao, treino.DataVencimento, treino.Modalidade, treino.LimiteAlunos, treino.Codigo });
 
             await NonQuery(sql, parametros);
         }
