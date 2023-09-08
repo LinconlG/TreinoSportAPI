@@ -120,5 +120,20 @@ namespace TreinoSportAPI.Mappers {
             }
             return 0;
         }
+        public async Task AtualizarTreino(Treino treino) {
+            string sql = @"
+                    UPDATE TREINO
+                    SET TRNOMETREINO = @obj0,
+                        TRDESCRICAOTREINO = @obj1,
+                        TRDATAVENCIMENTO = @obj2,
+                        TRMODALIDADE = @obj3
+                    WHERE
+                        TRCODTREINO = @obj4
+            ";
+
+            var parametros = Parametros.Parametrizar(new List<object> { treino.Nome, treino.Descricao, treino.DataVencimento, treino.Modalidade, treino.Codigo });
+
+            await NonQuery(sql, parametros);
+        }
     }
 }

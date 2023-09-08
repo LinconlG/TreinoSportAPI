@@ -58,10 +58,10 @@ namespace TreinoSportAPI.Controllers {
             }
         }
 
-        [HttpPatch("ct/horarios")]
-        public async Task<ActionResult> PatchHorarios([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromBody] List<DiaDaSemana> diasDaSemana) {
+        [HttpPatch("ct/detalhes")]
+        public async Task<ActionResult> PatchDetalhes([FromBody] Treino treino) {
             try {
-                await _treinoService.AtualizarHorarios(codigoTreino, diasDaSemana);
+                await _treinoService.AtualizarTreino(treino);
                 return Ok();
             }
             catch (Exception e) {

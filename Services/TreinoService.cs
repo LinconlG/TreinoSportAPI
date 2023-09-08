@@ -54,5 +54,10 @@ namespace TreinoSportAPI.Services {
             return treino;
         }
 
+        public async Task AtualizarTreino(Treino treino) {
+            await _treinoMapper.AtualizarTreino(treino);
+            await AtualizarHorarios(treino.Codigo, treino.DatasTreinos);
+        }
+
     }
 }
