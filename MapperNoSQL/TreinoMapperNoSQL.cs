@@ -34,9 +34,16 @@ namespace TreinoSportAPI.MapperNoSQL {
         private void CorrigirTimeZone(DiaDaSemanaDTO dto) {
             foreach (var dia in dto.DatasTreinos) {
                 var horariosCorrigidos = new List<DateTime>();
-                dia.Horarios.ForEach(horario => {
+                foreach (var horario in dia.Horarios) {
+
+                    if (horario.Hour < 2) {
+                        var horarioTemp = horario.AddDays(1);
+                        horariosCorrigidos.Add(horarioTemp.AddHours(-2));
+                        continue;
+                    }
+
                     horariosCorrigidos.Add(horario.AddHours(-2));
-                });
+                }
                 dia.Horarios = horariosCorrigidos;
             }
         }
