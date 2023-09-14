@@ -20,11 +20,14 @@ namespace TreinoSportAPI.MapperNoSQL {
 
         public async Task<List<DiaDaSemana>> BuscarHorarios(int codigoTreino) {
             var diasDaSemanaDTO = await dataHorarioDB.FindSync(dias => dias.CodigoTreino == codigoTreino).FirstOrDefaultAsync();
+            if (diasDaSemanaDTO == null) {
+                return new List<DiaDaSemana>();
+            }
             var datasTreinos = diasDaSemanaDTO.DatasTreinos;
             return datasTreinos;
         }
 
-        public async Task AtualizarHorarios(DiaDaSemanaDTO diaDaSemanaDTO) {
+        public async Task AtualizarDiasHorarios(DiaDaSemanaDTO diaDaSemanaDTO) {
             var filtro = Builders<DiaDaSemanaDTO>.Filter.Where(dto => dto.CodigoTreino == diaDaSemanaDTO.CodigoTreino);
             var update = Builders<DiaDaSemanaDTO>.Update.Set(dto => dto.DatasTreinos, diaDaSemanaDTO.DatasTreinos);
             CorrigirTimeZone(diaDaSemanaDTO);
@@ -33,16 +36,17 @@ namespace TreinoSportAPI.MapperNoSQL {
 
         private void CorrigirTimeZone(DiaDaSemanaDTO dto) {
             foreach (var dia in dto.DatasTreinos) {
-                var horariosCorrigidos = new List<DateTime>();
+                var horariosCorrigidos = new List<Horario>();
                 foreach (var horario in dia.Horarios) {
 
-                    if (horario.Hour < 2) {
-                        var horarioTemp = horario.AddDays(1);
-                        horariosCorrigidos.Add(horarioTemp.AddHours(-2));
-                        continue;
+                    var horarioTemp = horario;
+
+                    if (horario.Hora.Hour < 2) {
+                        horarioTemp.Hora = horario.Hora.AddDays(1);
                     }
 
-                    horariosCorrigidos.Add(horario.AddHours(-2));
+                    horarioTemp.Hora = horario.Hora.AddHours(-2);
+                    horariosCorrigidos.Add(horarioTemp);
                 }
                 dia.Horarios = horariosCorrigidos;
             }

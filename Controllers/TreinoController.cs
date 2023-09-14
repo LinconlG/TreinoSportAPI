@@ -79,5 +79,16 @@ namespace TreinoSportAPI.Controllers {
                 throw new Exception(e.Message, e.InnerException);
             }
         }
+
+        [HttpGet("gerenciamento/lista")]
+        public async Task<ActionResult<List<Treino>>> GetTreinosParaGerenciar([FromQuery(Name = "codigoCT")] int codigoCT) {
+            try {
+                var treinos = await _treinoService.BuscarTreinosParaGerenciar(codigoCT);
+                return Ok(treinos);
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros
+            }
+        }
     }
 }

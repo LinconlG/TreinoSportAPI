@@ -45,7 +45,7 @@ namespace TreinoSportAPI.Services {
             var diaDaSemanaDTO = new DiaDaSemanaDTO();
             diaDaSemanaDTO.CodigoTreino = codigoTreino;
             diaDaSemanaDTO.DatasTreinos = dias;
-            return _treinoMapperNoSQL.AtualizarHorarios(diaDaSemanaDTO);
+            return _treinoMapperNoSQL.AtualizarDiasHorarios(diaDaSemanaDTO);
         }
 
         public async Task<Treino> BuscarDetalhesTreino(int codigoTreino) {
@@ -57,6 +57,14 @@ namespace TreinoSportAPI.Services {
         public async Task AtualizarTreino(Treino treino) {
             await _treinoMapper.AtualizarTreino(treino);
             await AtualizarHorarios(treino.Codigo, treino.DatasTreinos);
+        }
+
+        public async Task<List<Treino>> BuscarTreinosParaGerenciar(int codigoCT) {
+            var treinos = await _treinoMapper.GetTreinosComoCT(codigoCT);
+            foreach (var treino in treinos) {
+                treino.DatasTreinos = await _treinoMapperNoSQL.BuscarHorarios(treino.Codigo);
+            }
+            return treinos;
         }
 
     }
