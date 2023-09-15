@@ -19,7 +19,7 @@ namespace TreinoSportAPI.Services {
         }
 
         public Task<List<Treino>> GetTreinosComoCT(int codigoCT) {
-            return _treinoMapper.GetTreinosComoCT(codigoCT);
+            return _treinoMapper.BuscarTreinosCT(codigoCT);
         }
 
         public async Task InserirTreino(Treino treino) {
@@ -59,13 +59,21 @@ namespace TreinoSportAPI.Services {
             await AtualizarHorarios(treino.Codigo, treino.DatasTreinos);
         }
 
+        public async Task<Treino> BuscarTreinoBasico(int codigoTreino) {
+            var treino = await _treinoMapper.BuscarTreinoBasico(codigoTreino);
+            treino.DatasTreinos = await _treinoMapperNoSQL.BuscarHorarios(codigoTreino);
+            return treino;
+        }
+
         public async Task<List<Treino>> BuscarTreinosParaGerenciar(int codigoCT) {
-            var treinos = await _treinoMapper.GetTreinosComoCT(codigoCT);
+            var treinos = await _treinoMapper.BuscarTreinosCT(codigoCT);
             foreach (var treino in treinos) {
                 treino.DatasTreinos = await _treinoMapperNoSQL.BuscarHorarios(treino.Codigo);
             }
             return treinos;
         }
-
+        public Task<List<Conta>> BuscarAlunos(int codigoTreino) {
+            return _treinoMapper.BuscarAlunos(codigoTreino);
+        }
     }
 }

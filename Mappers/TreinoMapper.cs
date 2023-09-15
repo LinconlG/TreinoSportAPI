@@ -38,7 +38,7 @@ namespace TreinoSportAPI.Mappers {
             }
             return listaTreinos;
         }
-        public async Task<List<Treino>> GetTreinosComoCT(int codigoCT) {
+        public async Task<List<Treino>> BuscarTreinosCT(int codigoCT) {
 
             var listaTreinos = new List<Treino>();
 
@@ -61,6 +61,25 @@ namespace TreinoSportAPI.Mappers {
                 listaTreinos.Add(treino);
             }
             return listaTreinos;
+        }
+        public async Task<Treino> BuscarTreinoBasico(int codigoTreino) {
+            string sql = $@"
+                        SELECT
+	                        TR.TRNOMETREINO
+                        FROM TREINO TR
+                        WHERE
+                            TR.TRCODTREINO = @obj0
+            ";
+            var parametros = Parametros.Parametrizar(new List<object> { codigoTreino });
+
+            var dr = Query(sql, parametros);
+
+            if (await dr.ReadAsync()) {
+                var treino = new Treino();
+                treino.Nome = dr.GetString("TRNOMETREINO");
+                return treino;
+            }
+            return null;
         }
         public async Task<Treino> BuscarDetalhesTreino(int codigoTreino) {
 
@@ -139,6 +158,34 @@ namespace TreinoSportAPI.Mappers {
             var parametros = Parametros.Parametrizar(new List<object> { treino.Nome, treino.Descricao, treino.DataVencimento, treino.Modalidade, treino.LimiteAlunos, treino.Codigo });
 
             await NonQuery(sql, parametros);
+        }
+        public async Task<List<Conta>> BuscarAlunos(int codigoTreino) {
+
+            var alunos = new List<Conta>();
+
+            string sql = @"
+                SELECT
+	                CO.COCODCONTA,
+	                CO.CONOMECONTA,
+	                CO.COEMAIL
+                FROM TREINOALUNO TA
+                INNER JOIN CONTA CO ON CO.COCODCONTA = TA.TACODALUNO
+                WHERE
+                 TA.TACODTREINO = @obj0"
+            ;
+
+            var parametros = Parametros.Parametrizar(new List<object> { codigoTreino });
+
+            var dr = Query(sql, parametros);
+
+            while (await dr.ReadAsync()) {
+                var conta = new Conta();
+                conta.Codigo = dr.GetInt32("COCODCONTA");
+                conta.Nome = dr.GetString("CONOMECONTA");
+                conta.Email = dr.GetString("COEMAIL");
+                alunos.Add(conta);
+            }
+            return alunos;
         }
     }
 }

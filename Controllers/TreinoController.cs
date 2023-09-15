@@ -47,6 +47,17 @@ namespace TreinoSportAPI.Controllers {
             }
         }
 
+        [HttpPatch("ct/horarios")]
+        public async Task<ActionResult> PatchHorarios([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromBody] List<DiaDaSemana> dias) {
+            try {
+                await _treinoService.AtualizarHorarios(codigoTreino, dias);
+                return Ok();
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException);
+            }
+        }
+
         [HttpPut("ct/criar")]
         public async Task<ActionResult> PutTreino([FromBody] Treino treino) {
             try {
@@ -85,6 +96,28 @@ namespace TreinoSportAPI.Controllers {
             try {
                 var treinos = await _treinoService.BuscarTreinosParaGerenciar(codigoCT);
                 return Ok(treinos);
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros
+            }
+        }
+
+        [HttpGet("gerenciamento/especifico")]
+        public async Task<ActionResult<Treino>> GetTreinoBasico([FromQuery(Name = "codigoTreino")] int codigoTreino) {
+            try {
+                var treino = await _treinoService.BuscarTreinoBasico(codigoTreino);
+                return Ok(treino);
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros
+            }
+        }
+
+        [HttpGet("alunos")]
+        public async Task<ActionResult<List<Conta>>> GetAlunos([FromQuery(Name = "codigoTreino")] int codigoTreino) {
+            try {
+                var alunos = await _treinoService.BuscarAlunos(codigoTreino);
+                return Ok(alunos);
             }
             catch (Exception e) {
                 throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros
