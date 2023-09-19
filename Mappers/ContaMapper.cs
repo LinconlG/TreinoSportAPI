@@ -1,4 +1,6 @@
-﻿using System.Data;
+﻿using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Identity.Client;
+using System.Data;
 using TreinoSportAPI.Mappers.Connection;
 using TreinoSportAPI.Models;
 
@@ -46,6 +48,36 @@ namespace TreinoSportAPI.Mappers {
                 return true;
             }
             return false;
+        }
+        public async Task<Conta> BuscarConta(int? codigoConta = null, string? email = null) {
+            string sql = @$"
+                        SELECT
+                            COCODCONTA,
+                            CONOMECONTA,
+                            CODESCRICAO,
+                            COEMAIL,
+                            COISCENTRO
+                        FROM CONTA
+                        WHERE
+                        {(codigoConta != null ? "COCODCONTA = @obj0" : "")}
+                        {((codigoConta != null && email != null) ? " AND " : "")}
+                        {(email != null ? "COEMAIL = @obj1" : "")}
+            ";
+
+            var parametros = Parametros.Parametrizar(new List<object> { codigoConta, email });
+
+            var dr = Query(sql, parametros);
+
+            if (await dr.ReadAsync()) {
+                var conta = new Conta();
+                conta.Codigo = dr.GetInt32("COCODCONTA");
+                conta.Nome = dr.GetString("CONOMECONTA");
+                conta.Email = dr.GetString("COEMAIL");
+                conta.Descricao = dr.IsDBNull("CODESCRICAO") ? null : dr.GetString("CODESCRICAO");
+                conta.IsCentroTreinamento = dr.GetBoolean("COISCENTRO");
+                return conta;
+            }
+            return null;
         }
     }
 }

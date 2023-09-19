@@ -8,10 +8,12 @@ namespace TreinoSportAPI.Services {
 
         private readonly TreinoMapper _treinoMapper;
         private readonly TreinoMapperNoSQL _treinoMapperNoSQL;
+        private readonly ContaMapper contaMapper;
 
-        public TreinoService(TreinoMapper treinoMapper, TreinoMapperNoSQL treinoMapperNoSQL) {
+        public TreinoService(TreinoMapper treinoMapper, TreinoMapperNoSQL treinoMapperNoSQL, ContaMapper contaMapper) {
             _treinoMapper = treinoMapper;
             _treinoMapperNoSQL = treinoMapperNoSQL;
+            this.contaMapper = contaMapper;
         }
 
         public Task<List<Treino>> GetTreinosComoAluno(int codigoUsuario) {
@@ -74,6 +76,13 @@ namespace TreinoSportAPI.Services {
         }
         public Task<List<Conta>> BuscarAlunos(int codigoTreino) {
             return _treinoMapper.BuscarAlunos(codigoTreino);
+        }
+        public async Task AdicionarAluno(int codigoTreino, string emailAluno) {
+            var emailExiste = await contaMapper.ChecarEmail(emailAluno);
+            if (!emailExiste) {
+                throw new Exception("Email não existe.");
+            }
+            await _treinoMapper.AdicionarAluno(codigoTreino, emailAluno);
         }
     }
 }

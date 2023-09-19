@@ -187,5 +187,13 @@ namespace TreinoSportAPI.Mappers {
             }
             return alunos;
         }
+        public async Task AdicionarAluno(int codigoTreino, string emailAluno) {
+            string sql = @"
+                    INSERT INTO TREINOALUNO
+                    VALUES ( obj0, (SELECT COCODCONTA FROM CONTA WHERE COEMAIL = @obj0) )
+            ";
+
+            await NonQuery(sql);
+        }
     }
 }
