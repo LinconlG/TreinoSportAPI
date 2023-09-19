@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Services;
+using ZstdSharp.Unsafe;
 
 namespace TreinoSportAPI.Controllers {
     [Route("api/[controller]")]
@@ -125,10 +126,10 @@ namespace TreinoSportAPI.Controllers {
         }
 
         [HttpPut("alunos")]
-        public async Task<ActionResult> PutAlunos([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromQuery(Name = "emailAluno")] string emailAluno) {
+        public async Task<ActionResult<int>> PutAluno([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromQuery(Name = "emailAluno")] string emailAluno) {
             try {
-                await _treinoService.AdicionarAluno(codigoTreino, emailAluno);
-                return Ok();
+                var alunoInserido = await _treinoService.AdicionarAluno(codigoTreino, emailAluno);
+                return Ok(alunoInserido);
             }
             catch (Exception e) {
                 throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros

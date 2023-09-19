@@ -25,5 +25,8 @@ namespace TreinoSportAPI.Services {
         public async Task<bool> ChecarEmail(string email) {
             return await _usuarioMapper.ChecarEmail(email);
         }
+        public Task<Conta> BuscarConta(int? codigoConta = null, string? email = null) {
+            return _usuarioMapper.BuscarConta(codigoConta, email);
+        }
     }
 }

@@ -41,5 +41,18 @@ namespace TreinoSportAPI.Controllers {
             }
 
         }
+
+        [HttpGet("conta/codigo")]
+        public async Task<ActionResult<Conta>> GetConta([FromQuery(Name = "codigoConta")][Required] int codigoConta) {
+
+            try {
+                var conta = await _usuarioService.BuscarConta(codigoConta);
+                return Ok(conta);
+            }
+            catch (Exception e) {
+                throw new Exception(e.Message, e.InnerException);
+            }
+
+        }
     }
 }

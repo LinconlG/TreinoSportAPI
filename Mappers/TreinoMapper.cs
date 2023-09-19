@@ -187,13 +187,25 @@ namespace TreinoSportAPI.Mappers {
             }
             return alunos;
         }
-        public async Task AdicionarAluno(int codigoTreino, string emailAluno) {
+        public async Task<int> AdicionarAluno(int codigoTreino, string emailAluno) {
             string sql = @"
                     INSERT INTO TREINOALUNO
-                    VALUES ( obj0, (SELECT COCODCONTA FROM CONTA WHERE COEMAIL = @obj0) )
+                     (
+                         TACODTREINO,
+                         TACODALUNO
+                     )
+                    OUTPUT INSERTED.TACODALUNO
+                    VALUES ( @obj0, (SELECT COCODCONTA FROM CONTA WHERE COEMAIL = @obj1) )
             ";
 
-            await NonQuery(sql);
+            var parametros = Parametros.Parametrizar(new List<object> { codigoTreino, emailAluno });
+
+            var dr = Query(sql, parametros);
+
+            if (await dr.ReadAsync()) {
+                return dr.GetInt32("TACODALUNO");
+            }
+            return 0;
         }
     }
 }
