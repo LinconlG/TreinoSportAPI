@@ -85,7 +85,11 @@ namespace TreinoSportAPI.Services {
             }
             return await _treinoMapper.AdicionarAluno(codigoTreino, emailAluno);
         }
-
+        public async Task DeletarTreino(int codigoTreino) {
+            await _treinoMapper.DeletarTreino(codigoTreino);
+            //deletar todos os alunos onde tem o treino
+            //deletar todos os horarios com o codigo do treino
+        }
         public async Task RemoverAluno(int codigoTreino, int codigoConta) {
             await _treinoMapper.RemoverAluno(codigoTreino, codigoConta);
         }

@@ -93,6 +93,17 @@ namespace TreinoSportAPI.Controllers {
             }
         }
 
+        [HttpDelete("ct/detalhes")]
+        public async Task<ActionResult<Treino>> DeleteTreino([FromQuery(Name = "codigoTreino")] int codigoTreino) {
+            try {
+                await _treinoService.DeletarTreino(codigoTreino);
+                return Ok();
+            }
+            catch (Exception e) {
+                return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));//===========================================================
+            }
+        }
+
         [HttpGet("gerenciamento/lista")]
         public async Task<ActionResult<List<Treino>>> GetTreinosParaGerenciar([FromQuery(Name = "codigoCT")] int codigoCT) {
             try {
@@ -100,7 +111,7 @@ namespace TreinoSportAPI.Controllers {
                 return Ok(treinos);
             }
             catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros
+                throw new Exception(e.Message, e.InnerException);
             }
         }
 
@@ -111,7 +122,7 @@ namespace TreinoSportAPI.Controllers {
                 return Ok(treino);
             }
             catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros
+                throw new Exception(e.Message, e.InnerException);
             }
         }
 
@@ -122,7 +133,7 @@ namespace TreinoSportAPI.Controllers {
                 return Ok(alunos);
             }
             catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros
+                throw new Exception(e.Message, e.InnerException);
             }
         }
 
@@ -133,7 +144,7 @@ namespace TreinoSportAPI.Controllers {
                 return Ok(alunoInserido);
             }
             catch (Exception e) {
-                return UtilEnvironment.InternalServerError(this, e.Message, true);
+                return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
             }
         }
 
@@ -144,7 +155,7 @@ namespace TreinoSportAPI.Controllers {
                 return Ok();
             }
             catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros
+                throw new Exception(e.Message, e.InnerException);
             }
         }
     }

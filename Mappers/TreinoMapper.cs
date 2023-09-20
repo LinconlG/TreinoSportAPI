@@ -207,7 +207,15 @@ namespace TreinoSportAPI.Mappers {
             }
             return 0;
         }
+        public async Task DeletarTreino(int codigoTreino) {
+            string sql = @"
+                    DELETE FROM TREINO
+                    WHERE TRCODTREINO = @obj0
+            ";
+            var parametros = Parametros.Parametrizar(new List<object> { codigoTreino });
 
+            await NonQuery(sql, parametros);
+        }
         public async Task RemoverAluno(int codigoTreino, int codigoConta) {
             string sql = @"
                         DELETE FROM TREINOALUNO
