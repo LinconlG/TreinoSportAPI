@@ -2,6 +2,7 @@
 using TreinoSportAPI.Mappers;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Models.DTO;
+using TreinoSportAPI.Utilities;
 
 namespace TreinoSportAPI.Services {
     public class TreinoService {
@@ -80,9 +81,13 @@ namespace TreinoSportAPI.Services {
         public async Task<int> AdicionarAluno(int codigoTreino, string emailAluno) {
             var emailExiste = await contaMapper.ChecarEmail(emailAluno);
             if (!emailExiste) {
-                throw new Exception("Email não existe.");
+                throw new APIException("Email não existe.", true);
             }
             return await _treinoMapper.AdicionarAluno(codigoTreino, emailAluno);
+        }
+
+        public async Task RemoverAluno(int codigoTreino, int codigoConta) {
+            await _treinoMapper.RemoverAluno(codigoTreino, codigoConta);
         }
     }
 }

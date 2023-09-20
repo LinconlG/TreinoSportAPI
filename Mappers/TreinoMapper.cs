@@ -207,5 +207,16 @@ namespace TreinoSportAPI.Mappers {
             }
             return 0;
         }
+
+        public async Task RemoverAluno(int codigoTreino, int codigoConta) {
+            string sql = @"
+                        DELETE FROM TREINOALUNO
+                        WHERE TACODTREINO = @obj0 AND TACODALUNO = @obj1
+            ";
+
+            var parametros = Parametros.Parametrizar(new List<object> { codigoTreino, codigoConta });
+
+            await NonQuery(sql, parametros);
+        }
     }
 }

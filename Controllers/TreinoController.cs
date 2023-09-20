@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Services;
+using TreinoSportAPI.Utilities;
 using ZstdSharp.Unsafe;
 
 namespace TreinoSportAPI.Controllers {
@@ -130,6 +131,17 @@ namespace TreinoSportAPI.Controllers {
             try {
                 var alunoInserido = await _treinoService.AdicionarAluno(codigoTreino, emailAluno);
                 return Ok(alunoInserido);
+            }
+            catch (Exception e) {
+                return UtilEnvironment.InternalServerError(this, e.Message, true);
+            }
+        }
+
+        [HttpDelete("alunos")]
+        public async Task<ActionResult<int>> DeleteAluno([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromQuery(Name = "codigoConta")] int codigoConta) {
+            try {
+                await _treinoService.RemoverAluno(codigoTreino, codigoConta);
+                return Ok();
             }
             catch (Exception e) {
                 throw new Exception(e.Message, e.InnerException); //fazer retornar 500 e retornar um objeto feito para erros
