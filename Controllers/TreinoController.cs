@@ -138,7 +138,7 @@ namespace TreinoSportAPI.Controllers {
         }
 
         [HttpPut("alunos")]
-        public async Task<ActionResult<int>> PutAluno([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromQuery(Name = "emailAluno")] string emailAluno) {
+        public async Task<ActionResult<Conta>> PutAluno([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromQuery(Name = "emailAluno")] string emailAluno) {
             try {
                 var alunoInserido = await _treinoService.AdicionarAluno(codigoTreino, emailAluno);
                 return Ok(alunoInserido);

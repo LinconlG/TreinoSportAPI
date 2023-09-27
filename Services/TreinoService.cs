@@ -78,12 +78,14 @@ namespace TreinoSportAPI.Services {
         public Task<List<Conta>> BuscarAlunos(int codigoTreino) {
             return _treinoMapper.BuscarAlunos(codigoTreino);
         }
-        public async Task<int> AdicionarAluno(int codigoTreino, string emailAluno) {
+        public async Task<Conta> AdicionarAluno(int codigoTreino, string emailAluno) {
             var emailExiste = await contaMapper.ChecarEmail(emailAluno);
             if (!emailExiste) {
                 throw new APIException("Email não existe.", true);
             }
-            return await _treinoMapper.AdicionarAluno(codigoTreino, emailAluno);
+            var codigoAluno = await _treinoMapper.AdicionarAluno(codigoTreino, emailAluno);
+            var conta = await contaMapper.BuscarConta(codigoAluno);
+            return conta;
         }
         public async Task DeletarTreino(int codigoTreino) {
             await _treinoMapper.DeletarTreino(codigoTreino);
