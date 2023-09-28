@@ -27,10 +27,13 @@ namespace TreinoSportAPI.MapperNoSQL {
             return datasTreinos;
         }
 
-        public async Task AtualizarDiasHorarios(DiaDaSemanaDTO diaDaSemanaDTO) {
+        public async Task AtualizarDiasHorarios(DiaDaSemanaDTO diaDaSemanaDTO, bool naoCorrigir = false) {
             var filtro = Builders<DiaDaSemanaDTO>.Filter.Where(dto => dto.CodigoTreino == diaDaSemanaDTO.CodigoTreino);
             var update = Builders<DiaDaSemanaDTO>.Update.Set(dto => dto.DatasTreinos, diaDaSemanaDTO.DatasTreinos);
-            CorrigirTimeZone(diaDaSemanaDTO);
+            if (!naoCorrigir) {
+                CorrigirTimeZone(diaDaSemanaDTO);
+            }
+
             await dataHorarioDB.UpdateOneAsync(filtro, update);
         }
 

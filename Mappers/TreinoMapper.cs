@@ -39,7 +39,7 @@ namespace TreinoSportAPI.Mappers {
             }
             return listaTreinos;
         }
-        public async Task<List<Treino>> BuscarTreinosCT(int codigoCT) {
+        public async Task<List<Treino>> BuscarTreinosCapaCT(int codigoCT) {
 
             var listaTreinos = new List<Treino>();
 

@@ -105,9 +105,9 @@ namespace TreinoSportAPI.Controllers {
         }
 
         [HttpGet("gerenciamento/lista")]
-        public async Task<ActionResult<List<Treino>>> GetTreinosParaGerenciar([FromQuery(Name = "codigoCT")] int codigoCT) {
+        public async Task<ActionResult<List<Treino>>> GetTreinosParaGerenciar([FromQuery(Name = "codigoConta")] int codigoConta, [FromQuery(Name = "isCT")] bool isCT) {
             try {
-                var treinos = await _treinoService.BuscarTreinosParaGerenciar(codigoCT);
+                var treinos = await _treinoService.BuscarTreinosComCores(codigoConta, isCT);
                 return Ok(treinos);
             }
             catch (Exception e) {

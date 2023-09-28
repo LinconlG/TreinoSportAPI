@@ -22,7 +22,7 @@ namespace TreinoSportAPI.Services {
         }
 
         public Task<List<Treino>> GetTreinosComoCT(int codigoCT) {
-            return _treinoMapper.BuscarTreinosCT(codigoCT);
+            return _treinoMapper.BuscarTreinosCapaCT(codigoCT);
         }
 
         public async Task InserirTreino(Treino treino) {
@@ -44,11 +44,11 @@ namespace TreinoSportAPI.Services {
             return _treinoMapperNoSQL.BuscarHorarios(codigoTreino);
         }
 
-        public Task AtualizarHorarios(int codigoTreino, List<DiaDaSemana> dias) {
+        public Task AtualizarHorarios(int codigoTreino, List<DiaDaSemana> dias, bool naoCorrigir = false) {
             var diaDaSemanaDTO = new DiaDaSemanaDTO();
             diaDaSemanaDTO.CodigoTreino = codigoTreino;
             diaDaSemanaDTO.DatasTreinos = dias;
-            return _treinoMapperNoSQL.AtualizarDiasHorarios(diaDaSemanaDTO);
+            return _treinoMapperNoSQL.AtualizarDiasHorarios(diaDaSemanaDTO, naoCorrigir);
         }
 
         public async Task<Treino> BuscarDetalhesTreino(int codigoTreino) {
@@ -68,8 +68,15 @@ namespace TreinoSportAPI.Services {
             return treino;
         }
 
-        public async Task<List<Treino>> BuscarTreinosParaGerenciar(int codigoCT) {
-            var treinos = await _treinoMapper.BuscarTreinosCT(codigoCT);
+        public async Task<List<Treino>> BuscarTreinosComCores(int codigoConta, bool isCT) {
+            var treinos = new List<Treino>();
+            if (isCT) {
+                treinos = await _treinoMapper.BuscarTreinosCapaCT(codigoConta);
+            }
+            else {
+                treinos = await _treinoMapper.GetTreinosComoAluno(codigoConta);
+            }
+
             foreach (var treino in treinos) {
                 treino.DatasTreinos = await _treinoMapperNoSQL.BuscarHorarios(treino.Codigo);
             }
@@ -107,7 +114,7 @@ namespace TreinoSportAPI.Services {
                     }
                 }
             }
-            await AtualizarHorarios(codigoTreino, diasDaSemana);
+            await AtualizarHorarios(codigoTreino, diasDaSemana, true);
         }
 
         public async Task RemoverAlunoHorario(int codigoTreino, int codigoDia, int codigoHorario, int codigoAluno, List<DiaDaSemana> diasDaSemana) {
@@ -121,7 +128,7 @@ namespace TreinoSportAPI.Services {
                     }
                 }
             }
-            await AtualizarHorarios(codigoTreino, diasDaSemana);
+            await AtualizarHorarios(codigoTreino, diasDaSemana, true);
         }
     }
 }
