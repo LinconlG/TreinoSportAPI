@@ -36,7 +36,7 @@ namespace TreinoSportAPI.Services {
         public Task InserirHorarios(int codigoTreino, List<DiaDaSemana> dias) {
             var diaDaSemanaDTO = new DiaDaSemanaDTO();
             diaDaSemanaDTO.CodigoTreino = codigoTreino;
-            diaDaSemanaDTO.DatasTreinos = dias;
+            diaDaSemanaDTO.DatasTreinos = dias.OrderBy(dia => dia.Dia).ToList();
             return _treinoMapperNoSQL.InserirHorarios(diaDaSemanaDTO);
         }
 

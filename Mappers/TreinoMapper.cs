@@ -30,6 +30,7 @@ namespace TreinoSportAPI.Mappers {
 
             while (await dr.ReadAsync()) {
                 var treino = new Treino();
+                treino.Codigo = dr.GetInt32("TRCODTREINO");
                 treino.Nome = dr.GetString("TRNOMETREINO");
                 treino.Descricao = dr.GetString("TRDESCRICAOTREINO");
                 treino.Criador = new();
