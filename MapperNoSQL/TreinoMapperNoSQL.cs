@@ -34,17 +34,6 @@ namespace TreinoSportAPI.MapperNoSQL {
             await dataHorarioDB.UpdateOneAsync(filtro, update);
         }
 
-        public async Task AtualizarAlunosHorarios(DiaDaSemanaDTO diaDaSemanaDTO) {
-
-            var filtro = Builders<DiaDaSemanaDTO>.Filter.Where(dto => dto.CodigoTreino == diaDaSemanaDTO.CodigoTreino);
-
-
-
-            var update = Builders<DiaDaSemanaDTO>.Update.Set(dto => dto.DatasTreinos, diaDaSemanaDTO.DatasTreinos);
-            CorrigirTimeZone(diaDaSemanaDTO);
-            await dataHorarioDB.UpdateOneAsync(filtro, update);
-        }
-
         private void CorrigirTimeZone(DiaDaSemanaDTO dto) {
             foreach (var dia in dto.DatasTreinos) {
                 var horariosCorrigidos = new List<Horario>();
@@ -62,5 +51,6 @@ namespace TreinoSportAPI.MapperNoSQL {
                 dia.Horarios = horariosCorrigidos;
             }
         }
+
     }
 }

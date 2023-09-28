@@ -149,13 +149,45 @@ namespace TreinoSportAPI.Controllers {
         }
 
         [HttpDelete("alunos")]
-        public async Task<ActionResult<int>> DeleteAluno([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromQuery(Name = "codigoConta")] int codigoConta) {
+        public async Task<ActionResult> DeleteAluno([FromQuery(Name = "codigoTreino")] int codigoTreino, [FromQuery(Name = "codigoConta")] int codigoConta) {
             try {
                 await _treinoService.RemoverAluno(codigoTreino, codigoConta);
                 return Ok();
             }
             catch (Exception e) {
                 throw new Exception(e.Message, e.InnerException);
+            }
+        }
+
+        [HttpPatch("aluno/presenca/marcar")]
+        public async Task<ActionResult> PatchInserirAlunoHorario(
+            [FromQuery(Name = "codigoTreino")] int codigoTreino,
+            [FromQuery(Name = "codigoDia")] int codigoDia,
+            [FromQuery(Name = "codigoHorario")] int codigoHorario,
+            [FromQuery(Name = "codigoAluno")] int codigoAluno,
+            [FromBody] List<DiaDaSemana> diasDaSemana) {
+            try {
+                await _treinoService.InserirAlunoHorario(codigoTreino, codigoDia, codigoHorario, codigoAluno, diasDaSemana);
+                return Ok();
+            }
+            catch (Exception e) {
+                return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
+            }
+        }
+
+        [HttpPatch("aluno/presenca/remover")]
+        public async Task<ActionResult> PatchDeletarAlunoHorario(
+            [FromQuery(Name = "codigoTreino")] int codigoTreino,
+            [FromQuery(Name = "codigoDia")] int codigoDia,
+            [FromQuery(Name = "codigoHorario")] int codigoHorario,
+            [FromQuery(Name = "codigoAluno")] int codigoAluno,
+            [FromBody] List<DiaDaSemana> diasDaSemana) {
+            try {
+                await _treinoService.RemoverAlunoHorario(codigoTreino, codigoDia, codigoHorario, codigoAluno, diasDaSemana);
+                return Ok();
+            }
+            catch (Exception e) {
+                return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
             }
         }
     }

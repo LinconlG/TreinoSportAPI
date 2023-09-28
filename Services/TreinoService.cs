@@ -95,5 +95,33 @@ namespace TreinoSportAPI.Services {
         public async Task RemoverAluno(int codigoTreino, int codigoConta) {
             await _treinoMapper.RemoverAluno(codigoTreino, codigoConta);
         }
+        public async Task InserirAlunoHorario(int codigoTreino, int codigoDia, int codigoHorario, int codigoAluno, List<DiaDaSemana> diasDaSemana) {
+            var aluno = await contaMapper.BuscarConta(codigoAluno);
+
+            foreach (var dia in diasDaSemana) {
+                if ((int)dia.Dia == codigoDia) {
+                    foreach (var horario in dia.Horarios) {
+                        if (horario.Codigo == codigoHorario) {
+                            horario.AlunosPresentes.Add(aluno);
+                        }
+                    }
+                }
+            }
+            await AtualizarHorarios(codigoTreino, diasDaSemana);
+        }
+
+        public async Task RemoverAlunoHorario(int codigoTreino, int codigoDia, int codigoHorario, int codigoAluno, List<DiaDaSemana> diasDaSemana) {
+
+            foreach (var dia in diasDaSemana) {
+                if ((int)dia.Dia == codigoDia) {
+                    foreach (var horario in dia.Horarios) {
+                        if (horario.Codigo == codigoHorario) {
+                            horario.AlunosPresentes.RemoveAll(aluno => aluno.Codigo == codigoAluno);
+                        }
+                    }
+                }
+            }
+            await AtualizarHorarios(codigoTreino, diasDaSemana);
+        }
     }
 }
