@@ -64,7 +64,7 @@ namespace TreinoSportAPI.Mappers {
                         {(email != null ? "COEMAIL = @obj1" : "")}
             ";
 
-            var parametros = Parametros.Parametrizar(new List<object> { codigoConta, email });
+            var parametros = Parametros.Parametrizar(codigoConta, email);
 
             var dr = Query(sql, parametros);
 
@@ -78,6 +78,17 @@ namespace TreinoSportAPI.Mappers {
                 return conta;
             }
             return null;
+        }
+        public async Task InserirToken(int codigoConta, string token) {
+            string sql = @"
+                INSERT INTO TOKEN (TKNCODCONTA, TKNTOKEN)
+                VALUES (@obj0, @obj1)
+            ";
+
+            var parametros = Parametros.Parametrizar(codigoConta, token);
+
+            await NonQuery(sql, parametros);
+
         }
     }
 }

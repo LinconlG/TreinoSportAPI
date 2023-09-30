@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Services;
+using TreinoSportAPI.Utilities;
 
 namespace TreinoSportAPI.Controllers {
 
@@ -51,6 +52,19 @@ namespace TreinoSportAPI.Controllers {
             }
             catch (Exception e) {
                 throw new Exception(e.Message, e.InnerException);
+            }
+
+        }
+
+        [HttpPut("senha/redefinir")]
+        public async Task<ActionResult> PutRedefinirSenhao(string email) {
+
+            try {
+                await _usuarioService.EnviarEmailSenha(email);
+                return Ok();
+            }
+            catch (Exception e) {
+                return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
             }
 
         }

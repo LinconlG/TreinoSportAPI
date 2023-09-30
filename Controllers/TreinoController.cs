@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Services;
+using TreinoSportAPI.Services.Interfaces;
 using TreinoSportAPI.Utilities;
-using ZstdSharp.Unsafe;
 
 namespace TreinoSportAPI.Controllers {
     [Route("api/[controller]")]
@@ -20,6 +20,7 @@ namespace TreinoSportAPI.Controllers {
         public async Task<ActionResult<List<Treino>>> GetTreinosComoAluno([FromQuery(Name = "codigoUsuario")] int codigoUsuario) {
             try {
                 var lista = await _treinoService.GetTreinosComoAluno(codigoUsuario);
+
                 return Ok(lista);
             }
             catch (Exception e) {

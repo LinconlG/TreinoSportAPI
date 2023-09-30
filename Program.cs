@@ -3,6 +3,7 @@ using TreinoSportAPI.MapperNoSQL;
 using TreinoSportAPI.MapperNoSQL.Connection;
 using TreinoSportAPI.Mappers;
 using TreinoSportAPI.Services;
+using TreinoSportAPI.Services.Interfaces;
 using TreinoSportAPI.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,8 @@ builder.Services.AddAuthentication(
     .AddCertificate();
 
 builder.Services.AddSingleton<MongoDBConnection>();
+
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 builder.Services.AddScoped<ContaService>();
 builder.Services.AddScoped<LoginService>();
