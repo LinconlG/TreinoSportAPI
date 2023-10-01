@@ -56,15 +56,41 @@ namespace TreinoSportAPI.Controllers {
 
         }
 
-        [HttpPut("senha/redefinir")]
-        public async Task<ActionResult> PutRedefinirSenhao(string email) {
+        [HttpPut("senha/envio")]
+        public async Task<ActionResult<int>> PutEnviarTokenSenha([FromQuery(Name = "email")] string email) {
 
             try {
-                await _usuarioService.EnviarEmailSenha(email);
+                var codigoConta = await _usuarioService.EnviarTokenSenha(email);
+                return Ok(codigoConta);
+            }
+            catch (Exception e) {
+                return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
+            }
+
+        }
+
+        [HttpGet("token")]
+        public async Task<ActionResult> GetChecarTokenSenha([FromQuery(Name = "codigoConta")] int codigoConta, [FromQuery(Name = "tokenInserido")] string tokenInserido) {
+
+            try {
+                await _usuarioService.ChecarToken(codigoConta, tokenInserido);
                 return Ok();
             }
             catch (Exception e) {
                 return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
+            }
+
+        }
+
+        [HttpPut("senha/redefinir")]
+        public async Task<ActionResult> PutRedefinirSenha([FromQuery(Name = "codigoConta")] int codigoConta, [FromQuery(Name = "novaSenha")] string novaSenha, [FromQuery(Name = "tokenInserido")] string tokenInserido) {
+
+            try {
+                await _usuarioService.RedefinirSenha(codigoConta, novaSenha, tokenInserido);
+                return Ok();
+            }
+            catch (Exception e) {
+                return this.InternalServerError(e.Message, e.IsPublicMessageCheck());//okfpsdokfpsdjvfdflkvmfdklvmfdlkmvlkdvmlçlscd
             }
 
         }

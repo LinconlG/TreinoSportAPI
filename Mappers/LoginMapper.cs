@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using TreinoSportAPI.Mappers.Connection;
 using TreinoSportAPI.Models;
+using TreinoSportAPI.Utilities;
 
 namespace TreinoSportAPI.Mappers {
     public class LoginMapper : BaseMapper {
@@ -30,7 +31,7 @@ namespace TreinoSportAPI.Mappers {
                 conta.IsCentroTreinamento = dr.GetBoolean("COISCENTRO");
                 return conta;
             }
-            throw new KeyNotFoundException();
+            throw new APIException("Usuário não encontrado", true);
         }
     }
 }

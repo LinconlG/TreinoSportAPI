@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Services;
+using TreinoSportAPI.Utilities;
 
 namespace TreinoSportAPI.Controllers {
 
@@ -21,7 +22,7 @@ namespace TreinoSportAPI.Controllers {
                 return Ok(codigoUsuario);
             }
             catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException);
+                return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
             }
         }
     }

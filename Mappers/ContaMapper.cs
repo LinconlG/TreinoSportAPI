@@ -90,5 +90,46 @@ namespace TreinoSportAPI.Mappers {
             await NonQuery(sql, parametros);
 
         }
+        public async Task<List<string>> BuscarTokens(int codigoConta) {
+
+            var tokens = new List<string>();
+            string sql = @"
+                SELECT 
+                    TKNTOKEN
+                FROM TOKEN
+                WHERE
+                    TKNCODCONTA = @obj0
+            ";
+
+            var parametros = Parametros.Parametrizar(codigoConta);
+            var dr = Query(sql, parametros);
+
+            while (await dr.ReadAsync()) {
+                tokens.Add(dr.GetString("TKNTOKEN"));
+            }
+            return tokens;
+        }
+        public async Task AlterarSenha(int codigoConta, string novaSenha) {
+            string sql = @"
+                    UPDATE CONTA
+                    SET COSENHA = @obj0
+                    WHERE
+                        COCODCONTA = @obj1
+            ";
+
+            var parametros = Parametros.Parametrizar(novaSenha, codigoConta);
+
+            await NonQuery(sql, parametros);
+        }
+        public async Task DeletarToken(int codigoConta) {
+            string sql = @"
+                    DELETE FROM TOKEN
+                    WHERE TKNCODCONTA = @obj0
+            ";
+
+            var parametros = Parametros.Parametrizar(codigoConta);
+
+            await NonQuery(sql, parametros);
+        }
     }
 }
