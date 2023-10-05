@@ -56,5 +56,8 @@ namespace TreinoSportAPI.Services {
             }
             throw new APIException("Erro no token", true);
         }
+        public Task AtualizarConta(Conta conta) {
+            return _contaMapper.AtualizarConta(conta);
+        }
     }
 }

@@ -94,5 +94,17 @@ namespace TreinoSportAPI.Controllers {
             }
 
         }
+        [HttpPatch("atualizar")]
+        public async Task<ActionResult> PatchConta([FromBody] Conta conta) {
+
+            try {
+                await _usuarioService.AtualizarConta(conta);
+                return Ok();
+            }
+            catch (Exception e) {
+                return this.InternalServerError(e.Message, e.IsPublicMessageCheck());
+            }
+
+        }
     }
 }

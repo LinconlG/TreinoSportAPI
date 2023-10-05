@@ -28,7 +28,21 @@ namespace TreinoSportAPI.Mappers {
             }
             throw new Exception("Erro ao cadastrar");
         }
+        public async Task AtualizarConta(Conta conta) {
+            string sql = @"
+                UPDATE CONTA
+                SET 
+                    CONOMECONTA = @obj0,
+                    CODESCRICAO = @obj1,
+                    COEMAIL = @obj2
+                WHERE
+                    COCODCONTA = @obj3
+            ";
 
+            var parametros = Parametros.Parametrizar(conta.Nome, conta.Descricao, conta.Email, conta.Codigo);
+
+            await NonQuery(sql, parametros);
+        }
         public async Task<bool> ChecarEmail(string email) {
             string sql = @"
                     SELECT 
