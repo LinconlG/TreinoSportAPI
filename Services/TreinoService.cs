@@ -56,6 +56,10 @@ namespace TreinoSportAPI.Services {
             treino.DatasTreinos = await _treinoMapperNoSQL.BuscarHorarios(codigoTreino);
             return treino;
         }
+        public async Task<Treino> BuscarDetalhesTreinoBasico(int codigoTreino) {
+            var treino = await _treinoMapper.BuscarDetalhesTreino(codigoTreino);
+            return treino;
+        }
 
         public async Task AtualizarTreino(Treino treino) {
             await _treinoMapper.AtualizarTreino(treino);

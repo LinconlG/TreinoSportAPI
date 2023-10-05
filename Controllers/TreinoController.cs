@@ -90,7 +90,18 @@ namespace TreinoSportAPI.Controllers {
                 return Ok(treino);
             }
             catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException);
+                return this.InternalServerError(e.Message, e.IsPublicMessageCheck());
+            }
+        }
+
+        [HttpGet("ct/detalhes/basico")]
+        public async Task<ActionResult<Treino>> GetDetalhesTreinoBasico([FromQuery(Name = "codigoTreino")] int codigoTreino) {
+            try {
+                var treino = await _treinoService.BuscarDetalhesTreinoBasico(codigoTreino);
+                return Ok(treino);
+            }
+            catch (Exception e) {
+                return this.InternalServerError(e.Message, e.IsPublicMessageCheck());
             }
         }
 
@@ -112,7 +123,7 @@ namespace TreinoSportAPI.Controllers {
                 return Ok(treinos);
             }
             catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException);
+                return this.InternalServerError(e.Message, e.IsPublicMessageCheck());
             }
         }
 
