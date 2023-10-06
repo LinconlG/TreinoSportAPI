@@ -1,8 +1,10 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.AspNetCore.Routing.Tree;
+using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using TreinoSportAPI.MapperNoSQL.Connection;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Models.DTO;
+using TreinoSportAPI.Utilities;
 
 namespace TreinoSportAPI.MapperNoSQL {
     public class TreinoMapperNoSQL {
@@ -27,6 +29,11 @@ namespace TreinoSportAPI.MapperNoSQL {
             }
             var datasTreinos = diasDaSemanaDTO.DatasTreinos;
             return datasTreinos;
+        }
+
+        public async Task<DiaDaSemanaDTO> BuscarAlunosPresentes(int codigoTreino) {
+            var treino = await dataHorarioDB.FindSync(dias => dias.CodigoTreino == codigoTreino).FirstOrDefaultAsync();
+            return treino;
         }
 
         public async Task<List<DiaDaSemanaDTO>> BuscarTodosHorarios() {

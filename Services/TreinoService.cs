@@ -120,7 +120,22 @@ namespace TreinoSportAPI.Services {
             }
             await AtualizarHorarios(codigoTreino, diasDaSemana, true);
         }
+        public async Task<List<Conta>> BuscarAlunosPresentes(int codigoTreino, int codigoDia, int codigoHorario) {
+            var treino = await _treinoMapperNoSQL.BuscarAlunosPresentes(codigoTreino);
+            foreach (var data in treino.DatasTreinos) {
 
+                if (data.Dia == (DayOfWeek)codigoDia) {
+
+                    foreach (var horario in data.Horarios) {
+
+                        if (horario.Codigo == codigoHorario) {
+                            return horario.AlunosPresentes;
+                        }
+                    }
+                }
+            }
+            throw new APIException("Erro ao buscar alunos presentes, recrie o treino ou entre em contato.", true);
+        }
         public async Task RemoverAlunoHorario(int codigoTreino, int codigoDia, int codigoHorario, int codigoAluno, List<DiaDaSemana> diasDaSemana) {
 
             foreach (var dia in diasDaSemana) {
@@ -134,5 +149,6 @@ namespace TreinoSportAPI.Services {
             }
             await AtualizarHorarios(codigoTreino, diasDaSemana, true);
         }
+
     }
 }

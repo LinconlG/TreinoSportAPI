@@ -145,7 +145,7 @@ namespace TreinoSportAPI.Controllers {
                 return Ok(alunos);
             }
             catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException);
+                return this.InternalServerError(e.Message, e.IsPublicMessageCheck());
             }
         }
 
@@ -199,7 +199,20 @@ namespace TreinoSportAPI.Controllers {
                 return Ok();
             }
             catch (Exception e) {
-                return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
+                return this.InternalServerError(e.Message, e.IsPublicMessageCheck());
+            }
+        }
+
+        [HttpGet("presentes")]
+        public async Task<ActionResult<List<Conta>>> GetAlunosPresentes([FromQuery(Name = "codigoTreino")] int codigoTreino, 
+            [FromQuery(Name = "codigoDia")] int codigoDia, 
+            [FromQuery(Name = "codigoHorario")] int codigoHorario) {
+            try {
+                var alunos = await _treinoService.BuscarAlunosPresentes(codigoTreino, codigoDia, codigoHorario);
+                return Ok(alunos);
+            }
+            catch (Exception e) {
+                return this.InternalServerError(e.Message, e.IsPublicMessageCheck());
             }
         }
     }
