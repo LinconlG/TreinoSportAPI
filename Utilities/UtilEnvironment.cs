@@ -29,6 +29,11 @@ namespace TreinoSportAPI.Utilities {
             }
         }
 
+        public static double ConverteHorasToMs(int horas) {
+            var tempSpan = new TimeSpan(horas, 0, 0);       
+            return tempSpan.TotalMilliseconds;
+        }
+
         public static string GerarToken() {
             var guid = Guid.NewGuid().ToString();
             guid = guid.Replace("-", "");

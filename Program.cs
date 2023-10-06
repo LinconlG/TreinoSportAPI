@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Certificate;
+using TreinoSportAPI.BackgroundService;
 using TreinoSportAPI.MapperNoSQL;
 using TreinoSportAPI.MapperNoSQL.Connection;
 using TreinoSportAPI.Mappers;
@@ -15,6 +16,8 @@ builder.Services.AddControllers();
 builder.Services.AddAuthentication(
         CertificateAuthenticationDefaults.AuthenticationScheme)
     .AddCertificate();
+
+builder.Services.AddHostedService<RenovarAulasBackground>();
 
 builder.Services.AddSingleton<MongoDBConnection>();
 

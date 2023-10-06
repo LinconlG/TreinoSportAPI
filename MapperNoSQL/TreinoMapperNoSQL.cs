@@ -9,6 +9,8 @@ namespace TreinoSportAPI.MapperNoSQL {
 
         private readonly IMongoCollection<DiaDaSemanaDTO> dataHorarioDB;
 
+        public TreinoMapperNoSQL() {}
+
         public TreinoMapperNoSQL(MongoDBConnection mongoDBConnection) {
             dataHorarioDB = mongoDBConnection.GetCollection<DiaDaSemanaDTO>("TreinoSport", "DataHorario");
         }
@@ -25,6 +27,12 @@ namespace TreinoSportAPI.MapperNoSQL {
             }
             var datasTreinos = diasDaSemanaDTO.DatasTreinos;
             return datasTreinos;
+        }
+
+        public async Task<List<DiaDaSemanaDTO>> BuscarTodosHorarios() {
+            var filtro = Builders<DiaDaSemanaDTO>.Filter.Where(dto => dto.CodigoTreino > 0);
+            var listaDto = (await dataHorarioDB.FindAsync(filtro)).ToList();
+            return listaDto;
         }
 
         public async Task AtualizarDiasHorarios(DiaDaSemanaDTO diaDaSemanaDTO, bool naoCorrigir = false) {
