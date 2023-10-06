@@ -87,6 +87,7 @@ namespace TreinoSportAPI.Mappers {
             string sql = $@"
                         SELECT
 	                        TRCODTREINO,
+                            TRNOMETREINO,
 	                        TRDESCRICAOTREINO,
                             TRDATAVENCIMENTO,
                             TRMODALIDADE,
@@ -102,6 +103,7 @@ namespace TreinoSportAPI.Mappers {
             if (await dr.ReadAsync()) {
                 var treino = new Treino();
                 treino.Codigo = dr.GetInt32("TRCODTREINO");
+                treino.Nome = dr.GetString("TRNOMETREINO");
                 treino.Descricao = dr.GetString("TRDESCRICAOTREINO");
                 treino.DataVencimento = dr.GetDateTime("TRDATAVENCIMENTO");
                 treino.Modalidade = (ModalidadeTreino) dr.GetByte("TRMODALIDADE");
