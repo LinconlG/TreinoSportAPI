@@ -24,7 +24,7 @@ namespace TreinoSportAPI.Mappers {
                         INNER JOIN TREINOALUNO TA ON TA.TACODALUNO = @obj0 AND TA.TACODTREINO = TRCODTREINO
             ";
 
-            var parametros = Parametros.Parametrizar(codigoUsuario);
+            var parametros = Parametrizar(codigoUsuario);
 
             var dr = Query(sql, parametros);
 
@@ -51,7 +51,7 @@ namespace TreinoSportAPI.Mappers {
                         WHERE
                             TR.TRCODCRIADOR = @obj0
             ";
-            var parametros = Parametros.Parametrizar(codigoCT);
+            var parametros = Parametrizar(codigoCT);
 
             var dr = Query(sql, parametros);
 
@@ -71,7 +71,7 @@ namespace TreinoSportAPI.Mappers {
                         WHERE
                             TR.TRCODTREINO = @obj0
             ";
-            var parametros = Parametros.Parametrizar(codigoTreino);
+            var parametros = Parametrizar(codigoTreino);
 
             var dr = Query(sql, parametros);
 
@@ -96,7 +96,7 @@ namespace TreinoSportAPI.Mappers {
                         WHERE
                             TRCODTREINO = @obj0
             ";
-            var parametros = Parametros.Parametrizar(codigoTreino);
+            var parametros = Parametrizar(codigoTreino);
 
             var dr = Query(sql, parametros);
 
@@ -137,7 +137,7 @@ namespace TreinoSportAPI.Mappers {
                     )
             ";
 
-            var parametros = Parametros.Parametrizar(treino.Nome, treino.Descricao, DateTime.Now, treino.DataVencimento, treino.Criador.Codigo, treino.Modalidade, treino.LimiteAlunos);
+            var parametros = Parametrizar(treino.Nome, treino.Descricao, DateTime.Now, treino.DataVencimento, treino.Criador.Codigo, treino.Modalidade, treino.LimiteAlunos);
 
             var dr =Query(sql, parametros);
 
@@ -158,7 +158,7 @@ namespace TreinoSportAPI.Mappers {
                         TRCODTREINO = @obj5
             ";
 
-            var parametros = Parametros.Parametrizar(treino.Nome, treino.Descricao, treino.DataVencimento, treino.Modalidade, treino.LimiteAlunos, treino.Codigo);
+            var parametros = Parametrizar(treino.Nome, treino.Descricao, treino.DataVencimento, treino.Modalidade, treino.LimiteAlunos, treino.Codigo);
 
             await NonQuery(sql, parametros);
         }
@@ -177,7 +177,7 @@ namespace TreinoSportAPI.Mappers {
                  TA.TACODTREINO = @obj0"
             ;
 
-            var parametros = Parametros.Parametrizar(codigoTreino);
+            var parametros = Parametrizar(codigoTreino);
 
             var dr = Query(sql, parametros);
 
@@ -201,7 +201,7 @@ namespace TreinoSportAPI.Mappers {
                     VALUES ( @obj0, (SELECT COCODCONTA FROM CONTA WHERE COEMAIL = @obj1) )
             ";
 
-            var parametros = Parametros.Parametrizar(codigoTreino, emailAluno);
+            var parametros = Parametrizar(codigoTreino, emailAluno);
 
             var dr = Query(sql, parametros);
 
@@ -215,7 +215,7 @@ namespace TreinoSportAPI.Mappers {
                     DELETE FROM TREINO
                     WHERE TRCODTREINO = @obj0
             ";
-            var parametros = Parametros.Parametrizar(codigoTreino);
+            var parametros = Parametrizar(codigoTreino);
 
             await NonQuery(sql, parametros);
         }
@@ -225,7 +225,7 @@ namespace TreinoSportAPI.Mappers {
                         WHERE TACODTREINO = @obj0 AND TACODALUNO = @obj1
             ";
 
-            var parametros = Parametros.Parametrizar(codigoTreino, codigoConta);
+            var parametros = Parametrizar(codigoTreino, codigoConta);
 
             await NonQuery(sql, parametros);
         }

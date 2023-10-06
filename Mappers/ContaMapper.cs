@@ -39,7 +39,7 @@ namespace TreinoSportAPI.Mappers {
                     COCODCONTA = @obj3
             ";
 
-            var parametros = Parametros.Parametrizar(conta.Nome, conta.Descricao, conta.Email, conta.Codigo);
+            var parametros = Parametrizar(conta.Nome, conta.Descricao, conta.Email, conta.Codigo);
 
             await NonQuery(sql, parametros);
         }
@@ -78,7 +78,7 @@ namespace TreinoSportAPI.Mappers {
                         {(email != null ? "COEMAIL = @obj1" : "")}
             ";
 
-            var parametros = Parametros.Parametrizar(codigoConta, email);
+            var parametros = Parametrizar(codigoConta, email);
 
             var dr = Query(sql, parametros);
 
@@ -99,7 +99,7 @@ namespace TreinoSportAPI.Mappers {
                 VALUES (@obj0, @obj1)
             ";
 
-            var parametros = Parametros.Parametrizar(codigoConta, token);
+            var parametros = Parametrizar(codigoConta, token);
 
             await NonQuery(sql, parametros);
 
@@ -115,7 +115,7 @@ namespace TreinoSportAPI.Mappers {
                     TKNCODCONTA = @obj0
             ";
 
-            var parametros = Parametros.Parametrizar(codigoConta);
+            var parametros = Parametrizar(codigoConta);
             var dr = Query(sql, parametros);
 
             while (await dr.ReadAsync()) {
@@ -131,7 +131,7 @@ namespace TreinoSportAPI.Mappers {
                         COCODCONTA = @obj1
             ";
 
-            var parametros = Parametros.Parametrizar(novaSenha, codigoConta);
+            var parametros = Parametrizar(novaSenha, codigoConta);
 
             await NonQuery(sql, parametros);
         }
@@ -141,7 +141,7 @@ namespace TreinoSportAPI.Mappers {
                     WHERE TKNCODCONTA = @obj0
             ";
 
-            var parametros = Parametros.Parametrizar(codigoConta);
+            var parametros = Parametrizar(codigoConta);
 
             await NonQuery(sql, parametros);
         }

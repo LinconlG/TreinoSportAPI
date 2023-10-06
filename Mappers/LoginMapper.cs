@@ -19,7 +19,7 @@ namespace TreinoSportAPI.Mappers {
                     AND COSENHA = @obj1
             ";
 
-            var parametros = Parametros.Parametrizar(email, senha);
+            var parametros = Parametrizar(email, senha);
 
             var dr = Query(sql, parametros);
 
