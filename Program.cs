@@ -17,8 +17,6 @@ builder.Services.AddAuthentication(
         CertificateAuthenticationDefaults.AuthenticationScheme)
     .AddCertificate();
 
-builder.WebHost.UseUrls("http://*:80", "https://*:443");
-
 builder.Services.AddHostedService<RenovarAulasBackground>();
 
 builder.Services.AddSingleton<MongoDBConnection>();
