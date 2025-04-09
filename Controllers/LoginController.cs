@@ -10,20 +10,29 @@ namespace TreinoSportAPI.Controllers {
     public class LoginController : ControllerBase {
 
         private readonly LoginService _loginService;
+        private readonly AuthService _authService;
 
         public LoginController(LoginService loginService) {
             _loginService = loginService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<Conta>> Login([FromQuery(Name = "email")] string email, [FromQuery(Name = "senha")] string senha) {
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] Conta user) {
+
             try {
-                var codigoUsuario = await _loginService.Login(email, senha);
-                return Ok(codigoUsuario);
+                var authenticatedUser = await _authService.Authenticate(user);
+
+                if (authenticatedUser == null)
+                    return Unauthorized();
+
+                var token = _authService.GenerateToken(authenticatedUser);
+
+                return Ok(new { token });
             }
             catch (Exception e) {
                 return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
             }
+
         }
     }
 }

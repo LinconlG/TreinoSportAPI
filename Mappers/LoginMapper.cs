@@ -31,7 +31,7 @@ namespace TreinoSportAPI.Mappers {
                 conta.IsCentroTreinamento = dr.GetBoolean("COISCENTRO");
                 return conta;
             }
-            throw new APIException("Usuário não encontrado", true);
+            return null;
         }
     }
 }

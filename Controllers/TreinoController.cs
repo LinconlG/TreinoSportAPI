@@ -1,13 +1,14 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Services;
-using TreinoSportAPI.Services.Interfaces;
 using TreinoSportAPI.Utilities;
 
 namespace TreinoSportAPI.Controllers {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TreinoController : ControllerBase {
 
         private readonly TreinoService _treinoService;
