@@ -12,11 +12,12 @@ namespace TreinoSportAPI.Controllers {
         private readonly LoginService _loginService;
         private readonly AuthService _authService;
 
-        public LoginController(LoginService loginService) {
+        public LoginController(LoginService loginService, AuthService authService) {
             _loginService = loginService;
+            _authService = authService;
         }
 
-        [HttpPost("login")]
+        [HttpPost]
         public async Task<IActionResult> Login([FromBody] Conta user) {
 
             try {

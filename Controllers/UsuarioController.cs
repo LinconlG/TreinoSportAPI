@@ -9,7 +9,6 @@ namespace TreinoSportAPI.Controllers {
 
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class UsuarioController : ControllerBase {
 
         private readonly ContaService _usuarioService;

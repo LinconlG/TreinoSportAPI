@@ -70,17 +70,19 @@ builder.Services.AddAuthentication(auth => {
 });
 
 
-// Configuração do CORS para permitir requisições de qualquer origem
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
-    });
-});
 
+
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAngularDev",
+        policy => policy
+            .WithOrigins("http://localhost:4020", "http://192.168.15.6:4020", "http://192.168.15.5:4020", "http://192.168.15.4:4020") // URL do seu Angular//
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+builder.WebHost.ConfigureKestrel(serverOptions => {
+    serverOptions.ListenAnyIP(5050); // Porta desejada
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -92,8 +94,10 @@ if (app.Environment.IsDevelopment()) {
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
+// Use isso ANTES de UseAuthorization() e MapControllers()
+app.UseCors("AllowAngularDev");
 
 app.UseAuthorization();
 app.UseAuthentication();
