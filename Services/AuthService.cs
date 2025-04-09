@@ -16,14 +16,10 @@ namespace TreinoSportAPI.Services {
 
 
         public async Task<Conta?> Authenticate(Conta user) {
-            /*            //var conta = await _loginService.Login(user.Email, user.Senha);
-                        if (conta != null) {
-                            conta.Email = user.Email;
-                            return conta;
-                        }*/
-
-            if (user != null) {
-                return user;
+            var conta = await _loginService.Login(user.Email, user.Senha);
+            if (conta != null) {
+                conta.Email = user.Email;
+                return conta;
             }
             return null;
         }
