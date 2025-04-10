@@ -22,10 +22,13 @@ namespace TreinoSportAPI.Controllers {
 
             try {
                 var emailExiste = await _usuarioService.CadastrarUsuario(usuario);
-                return Ok(emailExiste);
+                if (emailExiste) {
+                    throw new APIException("Email já existe.", true);
+                }
+                return Ok();
             }
             catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException);
+                return UtilEnvironment.InternalServerError(this, e.Message, UtilEnvironment.IsPublicMessageCheck(e));
             }
 
         }
