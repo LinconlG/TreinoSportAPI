@@ -32,7 +32,8 @@ namespace TreinoSportAPI.Services {
             var tokenDescriptor = new SecurityTokenDescriptor {
                 // Define as claims (informações) do usuário
                 Subject = new ClaimsIdentity(new Claim[] {
-                    new Claim(ClaimTypes.Name, user.Email)
+                    new Claim(ClaimTypes.Name, user.Email),
+                    new Claim(ClaimTypes.Role, user.IsCentroTreinamento ? "CT" : "Aluno"),
                 }),
                 Issuer = _configuration["Jwt:Issuer"]!,
                 Audience = _configuration["Jwt:Audience"]!,
