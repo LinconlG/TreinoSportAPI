@@ -1,13 +1,14 @@
 ﻿
 using TreinoSportAPI.MapperNoSQL;
+using TreinoSportAPI.MapperNoSQL.Connection;
 using TreinoSportAPI.Services;
 using TreinoSportAPI.Utilities;
 
 namespace TreinoSportAPI.BackgroundService {
     public class RenovarAulasBackground : Microsoft.Extensions.Hosting.BackgroundService {
         private TreinoMapperNoSQL _treinoNoSQL;
-        public RenovarAulasBackground() {
-            _treinoNoSQL = new();
+        public RenovarAulasBackground(MongoDBConnection mongoDBConnection) {
+            _treinoNoSQL = new(mongoDBConnection);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
