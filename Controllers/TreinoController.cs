@@ -30,8 +30,9 @@ namespace TreinoSportAPI.Controllers {
         }
 
         [HttpGet("ct/todos")]
-        public async Task<ActionResult<List<Treino>>> GetTreinosComoCT([FromQuery(Name = "codigoCT")] int codigoCT) {
+        public async Task<ActionResult<List<Treino>>> GetTreinosComoCT() {
             try {
+                var codigoCT = this.ObterCodigoConta();
                 var lista = await _treinoService.GetTreinosComoCT(codigoCT);
                 return Ok(lista);
             }

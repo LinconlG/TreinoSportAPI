@@ -58,15 +58,27 @@ builder.Services.AddAuthentication(auth => {
         IssuerSigningKey = new SymmetricSecurityKey(key),
         // Não valida o emissor
         ValidateIssuer = true,
-        ValidIssuer = "AuthApp",
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
         // Não valida a audiência
         ValidateAudience = true,
-        ValidAudience = "Users",
+        ValidAudience = builder.Configuration["Jwt:Audience"],
         // Valida o tempo de expiração do token
         ValidateLifetime = true,
         // Remove a tolerância padrão de 5 minutos para expiração
         ClockSkew = TimeSpan.Zero
     };
+
+    jwt.Events = new JwtBearerEvents {
+        OnAuthenticationFailed = context => {
+            Console.WriteLine($"Falha na autenticação: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context => {
+            Console.WriteLine("Token validado com sucesso!");
+            return Task.CompletedTask;
+        }
+    };
+
 });
 
 
@@ -75,7 +87,7 @@ builder.Services.AddAuthentication(auth => {
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngularDev",
         policy => policy
-            .WithOrigins("http://localhost:4020", "http://192.168.15.6:4020", "http://192.168.15.5:4020", "http://192.168.15.4:4020") // URL do seu Angular//
+            .WithOrigins("http://localhost:4020", "http://192.168.15.6:4020", "http://192.168.15.5:4020", "http://192.168.0.10:4020") // URL do seu Angular//
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -99,8 +111,8 @@ if (app.Environment.IsDevelopment()) {
 // Use isso ANTES de UseAuthorization() e MapControllers()
 app.UseCors("AllowAngularDev");
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

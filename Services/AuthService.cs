@@ -34,6 +34,7 @@ namespace TreinoSportAPI.Services {
                 Subject = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.Name, user.Email),
                     new Claim(ClaimTypes.Role, user.IsCentroTreinamento ? "CT" : "Aluno"),
+                    new Claim("CodigoConta", user.Codigo.ToString())
                 }),
                 Issuer = _configuration["Jwt:Issuer"]!,
                 Audience = _configuration["Jwt:Audience"]!,
