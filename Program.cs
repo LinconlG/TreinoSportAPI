@@ -87,10 +87,10 @@ builder.Services.AddAuthentication(auth => {
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngularDev",
         policy => policy
-            .WithOrigins("http://localhost:4020", "http://192.168.15.6:4020", "http://192.168.15.5:4020", "http://192.168.0.10:4020") // URL do seu Angular//
+            .WithOrigins("http://192.168.15.4:4200", "http://192.168.15.5:4200", "http://192.168.15.2:4200")
             .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
+            .AllowAnyHeader());
+            //.AllowCredentials());
 });
 builder.WebHost.ConfigureKestrel(serverOptions => {
     serverOptions.ListenAnyIP(5050); // Porta desejada

@@ -66,6 +66,9 @@ namespace TreinoSportAPI.Controllers {
         [HttpPut("ct/criar")]
         public async Task<ActionResult> PutTreino([FromBody] Treino treino) {
             try {
+                treino.Criador = new() {
+                    Codigo = this.ObterCodigoConta()
+                };
                 await _treinoService.InserirTreino(treino);
                 return Ok();
             }

@@ -46,7 +46,8 @@ namespace TreinoSportAPI.Mappers {
             string sql = $@"
                         SELECT
 	                        TR.TRCODTREINO,
-	                        TR.TRNOMETREINO
+	                        TR.TRNOMETREINO,
+                            TRMODALIDADE
                         FROM TREINO TR
                         WHERE
                             TR.TRCODCRIADOR = @obj0
@@ -59,6 +60,7 @@ namespace TreinoSportAPI.Mappers {
                 var treino = new Treino();
                 treino.Codigo = dr.GetInt32("TRCODTREINO");
                 treino.Nome = dr.GetString("TRNOMETREINO");
+                treino.Modalidade = (ModalidadeTreino)dr.GetByte("TRMODALIDADE");
                 listaTreinos.Add(treino);
             }
             return listaTreinos;
@@ -137,7 +139,7 @@ namespace TreinoSportAPI.Mappers {
                     )
             ";
 
-            var parametros = Parametrizar(treino.Nome, treino.Descricao, DateTime.Now, treino.DataVencimento, treino.Criador.Codigo, treino.Modalidade, treino.LimiteAlunos);
+            var parametros = Parametrizar(treino.Nome, treino.Descricao, DateTime.Now, DateTime.Now, treino.Criador.Codigo, treino.Modalidade, treino.LimiteAlunos);
 
             var dr =Query(sql, parametros);
 
