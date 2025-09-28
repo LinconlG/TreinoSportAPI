@@ -221,6 +221,15 @@ namespace TreinoSportAPI.Mappers {
 
             await NonQuery(sql, parametros);
         }
+        public async Task DeletarAlunosTreino(int codigoTreino) {
+            string sql = @"
+                    DELETE FROM TREINOALUNO
+                    WHERE TACODTREINO = @obj0
+            ";
+            var parametros = Parametrizar(codigoTreino);
+
+            await NonQuery(sql, parametros);
+        }
         public async Task RemoverAluno(int codigoTreino, int codigoConta) {
             string sql = @"
                         DELETE FROM TREINOALUNO

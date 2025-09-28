@@ -99,8 +99,8 @@ namespace TreinoSportAPI.Services {
             return conta;
         }
         public async Task DeletarTreino(int codigoTreino) {
+            await _treinoMapper.DeletarAlunosTreino(codigoTreino);
             await _treinoMapper.DeletarTreino(codigoTreino);
-            //deletar todos os alunos onde tem o treino
             //deletar todos os horarios com o codigo do treino
         }
         public async Task RemoverAluno(int codigoTreino, int codigoConta) {
