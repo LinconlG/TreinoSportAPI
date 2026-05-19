@@ -1,149 +1,144 @@
-﻿using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.Identity.Client;
-using System.Data;
+﻿using Dapper;
 using TreinoSportAPI.Mappers.Connection;
+using TreinoSportAPI.Mappers.Interfaces;
 using TreinoSportAPI.Models;
 
 namespace TreinoSportAPI.Mappers {
-    public class ContaMapper : BaseMapper {
+    public class ContaMapper : IContaMapper {
 
+        private readonly SqlConnectionFactory _factory;
+
+        public ContaMapper(SqlConnectionFactory factory) {
+            _factory = factory;
+        }
+
+        /// <summary>
+        /// Cadastra um novo usuário no banco de dados e retorna o código gerado.
+        /// </summary>
         public async Task<int> CadastrarUsuario(Conta usuario) {
-
-            string sql = @"INSERT INTO CONTA(COEMAIL, CODESCRICAO, CONOMECONTA, COSENHA, COISCENTRO)
+            const string sql = @"INSERT INTO CONTA(COEMAIL, CODESCRICAO, CONOMECONTA, COSENHA, COISCENTRO, Latitude, Longitude, Cep)
                         OUTPUT INSERTED.COCODCONTA
-                        VALUES (@email, @descricao, @nome, @senha, @isCentro)
-            ";
-            var parametros = new List<(string, object)> {
-                ("email", usuario.Email),
-                ("nome", usuario.Nome),
-                ("senha", usuario.Senha),
-                ("descricao", usuario.Descricao),
-                ("isCentro", usuario.IsCentroTreinamento)
-            };
-
-            var dr = Query(sql, parametros);
-
-            if (await dr.ReadAsync()) {
-                return dr.GetInt32("COCODCONTA");
-            }
-            throw new Exception("Erro ao cadastrar");
+                        VALUES (@Email, @Descricao, @Nome, @Senha, @IsCentro, @Latitude, @Longitude, @Cep)";
+            using var conn = _factory.CreateConnection();
+            var result = await conn.QuerySingleAsync<int>(sql, new {
+                Email = usuario.Email,
+                Descricao = usuario.Descricao,
+                Nome = usuario.Nome,
+                Senha = usuario.Senha,
+                IsCentro = usuario.IsCentroTreinamento,
+                Latitude = usuario.Latitude,
+                Longitude = usuario.Longitude,
+                Cep = usuario.Cep
+            });
+            return result;
         }
+
+        /// <summary>
+        /// Atualiza os dados de nome, descrição e email de uma conta.
+        /// </summary>
         public async Task AtualizarConta(Conta conta) {
-            string sql = @"
-                UPDATE CONTA
-                SET 
-                    CONOMECONTA = @obj0,
-                    CODESCRICAO = @obj1,
-                    COEMAIL = @obj2
-                WHERE
-                    COCODCONTA = @obj3
-            ";
-
-            var parametros = Parametrizar(conta.Nome, conta.Descricao, conta.Email, conta.Codigo);
-
-            await NonQuery(sql, parametros);
+            const string sql = @"UPDATE CONTA
+                SET CONOMECONTA = @Nome, CODESCRICAO = @Descricao, COEMAIL = @Email,
+                    Latitude = @Latitude, Longitude = @Longitude, Cep = @Cep
+                WHERE COCODCONTA = @Codigo";
+            using var conn = _factory.CreateConnection();
+            await conn.ExecuteAsync(sql, new { conta.Nome, conta.Descricao, conta.Email, conta.Codigo, conta.Latitude, conta.Longitude, conta.Cep });
         }
+
+        /// <summary>
+        /// Verifica se um email já está cadastrado no banco de dados.
+        /// </summary>
         public async Task<bool> ChecarEmail(string email) {
-            string sql = @"
-                    SELECT 
-                        COEMAIL
-                    FROM CONTA
-                    WHERE
-                        COEMAIL = @email
-            ";
-
-            var parametros = new List<(string, object)> {
-                ("email", email)
-            };
-
-            var dr = Query(sql, parametros);
-
-            if (await dr.ReadAsync()) {
-                return true;
-            }
-            return false;
+            const string sql = "SELECT COEMAIL FROM CONTA WHERE COEMAIL = @Email";
+            using var conn = _factory.CreateConnection();
+            var result = await conn.QueryFirstOrDefaultAsync<string>(sql, new { Email = email });
+            return result != null;
         }
+
+        /// <summary>
+        /// Busca uma conta por código ou email.
+        /// </summary>
         public async Task<Conta> BuscarConta(int? codigoConta = null, string? email = null) {
-            string sql = @$"
-                        SELECT
-                            COCODCONTA,
-                            CONOMECONTA,
-                            CODESCRICAO,
-                            COEMAIL,
-                            COISCENTRO
-                        FROM CONTA
-                        WHERE
-                        {(codigoConta != null ? "COCODCONTA = @obj0" : "")}
-                        {((codigoConta != null && email != null) ? " AND " : "")}
-                        {(email != null ? "COEMAIL = @obj1" : "")}
-            ";
+            var conditions = new List<string>();
+            if (codigoConta != null) conditions.Add("COCODCONTA = @CodigoConta");
+            if (email != null) conditions.Add("COEMAIL = @Email");
+            var where = conditions.Count > 0 ? "WHERE " + string.Join(" AND ", conditions) : "";
 
-            var parametros = Parametrizar(codigoConta, email);
-
-            var dr = Query(sql, parametros);
-
-            if (await dr.ReadAsync()) {
-                var conta = new Conta();
-                conta.Codigo = dr.GetInt32("COCODCONTA");
-                conta.Nome = dr.GetString("CONOMECONTA");
-                conta.Email = dr.GetString("COEMAIL");
-                conta.Descricao = dr.IsDBNull("CODESCRICAO") ? null : dr.GetString("CODESCRICAO");
-                conta.IsCentroTreinamento = dr.GetBoolean("COISCENTRO");
-                return conta;
-            }
-            return null;
+            var sql = $@"SELECT COCODCONTA AS Codigo, CONOMECONTA AS Nome, CODESCRICAO AS Descricao,
+                               COEMAIL AS Email, COISCENTRO AS IsCentroTreinamento,
+                               Latitude, Longitude, Cep
+                        FROM CONTA {where}";
+            using var conn = _factory.CreateConnection();
+            return await conn.QueryFirstOrDefaultAsync<Conta>(sql, new { CodigoConta = codigoConta, Email = email });
         }
+
+        /// <summary>
+        /// Insere um token de redefinição de senha para a conta informada.
+        /// </summary>
         public async Task InserirToken(int codigoConta, string token) {
-            string sql = @"
-                INSERT INTO TOKEN (TKNCODCONTA, TKNTOKEN)
-                VALUES (@obj0, @obj1)
-            ";
-
-            var parametros = Parametrizar(codigoConta, token);
-
-            await NonQuery(sql, parametros);
-
+            const string sql = "INSERT INTO TOKEN (TKNCODCONTA, TKNTOKEN) VALUES (@CodigoConta, @Token)";
+            using var conn = _factory.CreateConnection();
+            await conn.ExecuteAsync(sql, new { CodigoConta = codigoConta, Token = token });
         }
+
+        /// <summary>
+        /// Retorna todos os tokens de redefinição de senha associados à conta.
+        /// </summary>
         public async Task<List<string>> BuscarTokens(int codigoConta) {
-
-            var tokens = new List<string>();
-            string sql = @"
-                SELECT 
-                    TKNTOKEN
-                FROM TOKEN
-                WHERE
-                    TKNCODCONTA = @obj0
-            ";
-
-            var parametros = Parametrizar(codigoConta);
-            var dr = Query(sql, parametros);
-
-            while (await dr.ReadAsync()) {
-                tokens.Add(dr.GetString("TKNTOKEN"));
-            }
-            return tokens;
+            const string sql = "SELECT TKNTOKEN FROM TOKEN WHERE TKNCODCONTA = @CodigoConta";
+            using var conn = _factory.CreateConnection();
+            var result = await conn.QueryAsync<string>(sql, new { CodigoConta = codigoConta });
+            return result.ToList();
         }
+
+        /// <summary>
+        /// Altera a senha de uma conta no banco de dados.
+        /// </summary>
         public async Task AlterarSenha(int codigoConta, string novaSenha) {
-            string sql = @"
-                    UPDATE CONTA
-                    SET COSENHA = @obj0
-                    WHERE
-                        COCODCONTA = @obj1
-            ";
-
-            var parametros = Parametrizar(novaSenha, codigoConta);
-
-            await NonQuery(sql, parametros);
+            const string sql = "UPDATE CONTA SET COSENHA = @NovaSenha WHERE COCODCONTA = @CodigoConta";
+            using var conn = _factory.CreateConnection();
+            await conn.ExecuteAsync(sql, new { NovaSenha = novaSenha, CodigoConta = codigoConta });
         }
+
+        /// <summary>
+        /// Remove todos os tokens de redefinição de senha da conta.
+        /// </summary>
         public async Task DeletarToken(int codigoConta) {
-            string sql = @"
-                    DELETE FROM TOKEN
-                    WHERE TKNCODCONTA = @obj0
-            ";
+            const string sql = "DELETE FROM TOKEN WHERE TKNCODCONTA = @CodigoConta";
+            using var conn = _factory.CreateConnection();
+            await conn.ExecuteAsync(sql, new { CodigoConta = codigoConta });
+        }
 
-            var parametros = Parametrizar(codigoConta);
-
-            await NonQuery(sql, parametros);
+        /// <summary>
+        /// Busca CTs próximos às coordenadas informadas usando a fórmula de Haversine.
+        /// </summary>
+        public async Task<List<CTResult>> BuscarCTsPorLocalizacao(double lat, double lng, int raio) {
+            const string sql = @"
+                SELECT
+                    C.COCODCONTA AS Codigo,
+                    C.CONOMECONTA AS Nome,
+                    C.CODESCRICAO AS Descricao,
+                    dbo.fn_DistanciaKm(@Lat, @Lng, C.Latitude, C.Longitude) AS DistanciaKm,
+                    STRING_AGG(T.TRMODALIDADE, ',') AS Modalidades
+                FROM CONTA C
+                LEFT JOIN TREINO T ON T.TRCODCRIADOR = C.COCODCONTA
+                WHERE C.COISCENTRO = 1
+                  AND C.Latitude IS NOT NULL
+                  AND C.Longitude IS NOT NULL
+                  AND dbo.fn_DistanciaKm(@Lat, @Lng, C.Latitude, C.Longitude) <= @Raio
+                GROUP BY C.COCODCONTA, C.CONOMECONTA, C.CODESCRICAO, C.Latitude, C.Longitude
+                ORDER BY DistanciaKm ASC";
+            using var conn = _factory.CreateConnection();
+            var rawResults = await conn.QueryAsync<dynamic>(sql, new { Lat = lat, Lng = lng, Raio = raio });
+            return rawResults.Select(r => new CTResult {
+                Codigo = (int)r.Codigo,
+                Nome = (string)r.Nome,
+                Descricao = (string)(r.Descricao ?? ""),
+                DistanciaKm = (double)r.DistanciaKm,
+                Modalidades = string.IsNullOrWhiteSpace((string?)r.Modalidades)
+                    ? new List<string>()
+                    : ((string)r.Modalidades).Split(',').Select(m => m.Trim()).Where(m => !string.IsNullOrEmpty(m)).ToList()
+            }).ToList();
         }
     }
 }

@@ -7,9 +7,13 @@
     <UserSecretsId>05be3d1e-2dfd-407c-a959-a4c5afa5ccab</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>.</DockerfileContext>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+    <PackageReference Include="Dapper" Version="2.1.72" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="7.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.20" />
@@ -26,6 +30,13 @@
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="TreinoSportAPI.Tests\**" />
+    <Content Remove="TreinoSportAPI.Tests\**" />
+    <EmbeddedResource Remove="TreinoSportAPI.Tests\**" />
+    <None Remove="TreinoSportAPI.Tests\**" />
   </ItemGroup>
 
 </Project>

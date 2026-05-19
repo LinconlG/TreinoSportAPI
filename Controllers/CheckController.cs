@@ -8,15 +8,10 @@ namespace TreinoSportAPI.Controllers {
     [Route("api/[controller]")]
     public class CheckController : Controller {
 
-
+        /// <summary>Verifica se a API está online.</summary>
         [HttpGet]
         public ActionResult Check() {
-            try {
-                return Ok();
-            }
-            catch (Exception e) {
-                throw new Exception(e.Message, e.InnerException);
-            }
+            return Ok();
         }
     }
 }

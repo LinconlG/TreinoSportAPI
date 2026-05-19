@@ -1,244 +1,162 @@
-﻿using System.Data;
+﻿using Dapper;
 using TreinoSportAPI.Mappers.Connection;
+using TreinoSportAPI.Mappers.Interfaces;
 using TreinoSportAPI.Models;
 using TreinoSportAPI.Models.Enums;
 
 namespace TreinoSportAPI.Mappers {
-    public class TreinoMapper : BaseMapper {
+    public class TreinoMapper : ITreinoMapper {
 
+        private readonly SqlConnectionFactory _factory;
+
+        public TreinoMapper(SqlConnectionFactory factory) {
+            _factory = factory;
+        }
+
+        /// <summary>
+        /// Retorna os treinos nos quais o usuário está inscrito como aluno.
+        /// </summary>
         public async Task<List<Treino>> GetTreinosComoAluno(int codigoUsuario) {
-
-            var listaTreinos = new List<Treino>();
-
-            string sql = @"
-                        SELECT
-                            TRCODTREINO,
-                            TRNOMETREINO,
-                            CO.CONOMECONTA,
-                            TRDESCRICAOTREINO,    
-                            TRDATACRIACAO,
-                            TRDATAVENCIMENTO,
-                            TRMODALIDADE
-                        FROM TREINO
-                        INNER JOIN CONTA CO ON CO.COCODCONTA = TRCODCRIADOR
-                        INNER JOIN TREINOALUNO TA ON TA.TACODALUNO = @obj0 AND TA.TACODTREINO = TRCODTREINO
-            ";
-
-            var parametros = Parametrizar(codigoUsuario);
-
-            var dr = Query(sql, parametros);
-
-            while (await dr.ReadAsync()) {
-                var treino = new Treino();
-                treino.Codigo = dr.GetInt32("TRCODTREINO");
-                treino.Nome = dr.GetString("TRNOMETREINO");
-                treino.Descricao = dr.GetString("TRDESCRICAOTREINO");
-                treino.Criador = new();
-                treino.Criador.Nome = dr.GetString("CONOMECONTA");
-                listaTreinos.Add(treino);
-            }
-            return listaTreinos;
+            const string sql = @"SELECT TR.TRCODTREINO AS Codigo, TR.TRNOMETREINO AS Nome,
+                                        TR.TRDESCRICAOTREINO AS Descricao, CO.CONOMECONTA AS CriadorNome
+                                 FROM TREINO TR
+                                 INNER JOIN CONTA CO ON CO.COCODCONTA = TR.TRCODCRIADOR
+                                 INNER JOIN TREINOALUNO TA ON TA.TACODALUNO = @CodigoUsuario AND TA.TACODTREINO = TR.TRCODTREINO";
+            using var conn = _factory.CreateConnection();
+            var rows = await conn.QueryAsync(sql, new { CodigoUsuario = codigoUsuario });
+            return rows.Select(r => new Treino {
+                Codigo = (int)r.Codigo,
+                Nome = (string)r.Nome,
+                Descricao = (string)r.Descricao,
+                Criador = new Conta { Nome = (string)r.CriadorNome }
+            }).ToList();
         }
+
+        /// <summary>
+        /// Retorna os treinos criados pelo Centro de Treinamento informado.
+        /// </summary>
         public async Task<List<Treino>> BuscarTreinosCapaCT(int codigoCT) {
-
-            var listaTreinos = new List<Treino>();
-
-            string sql = $@"
-                        SELECT
-	                        TR.TRCODTREINO,
-	                        TR.TRNOMETREINO,
-                            TRMODALIDADE
-                        FROM TREINO TR
-                        WHERE
-                            TR.TRCODCRIADOR = @obj0
-            ";
-            var parametros = Parametrizar(codigoCT);
-
-            var dr = Query(sql, parametros);
-
-            while (await dr.ReadAsync()) {
-                var treino = new Treino();
-                treino.Codigo = dr.GetInt32("TRCODTREINO");
-                treino.Nome = dr.GetString("TRNOMETREINO");
-                treino.Modalidade = (ModalidadeTreino)dr.GetByte("TRMODALIDADE");
-                listaTreinos.Add(treino);
-            }
-            return listaTreinos;
+            const string sql = @"SELECT TR.TRCODTREINO AS Codigo, TR.TRNOMETREINO AS Nome, TR.TRMODALIDADE AS Modalidade
+                                 FROM TREINO TR WHERE TR.TRCODCRIADOR = @CodigoCT";
+            using var conn = _factory.CreateConnection();
+            var rows = await conn.QueryAsync(sql, new { CodigoCT = codigoCT });
+            return rows.Select(r => new Treino {
+                Codigo = (int)r.Codigo,
+                Nome = (string)r.Nome,
+                Modalidade = (ModalidadeTreino)(byte)r.Modalidade
+            }).ToList();
         }
+
+        /// <summary>
+        /// Busca informações básicas de um treino pelo código.
+        /// </summary>
         public async Task<Treino> BuscarTreinoBasico(int codigoTreino) {
-            string sql = $@"
-                        SELECT
-	                        TR.TRNOMETREINO
-                        FROM TREINO TR
-                        WHERE
-                            TR.TRCODTREINO = @obj0
-            ";
-            var parametros = Parametrizar(codigoTreino);
-
-            var dr = Query(sql, parametros);
-
-            if (await dr.ReadAsync()) {
-                var treino = new Treino();
-                treino.Nome = dr.GetString("TRNOMETREINO");
-                return treino;
-            }
-            return null;
+            const string sql = "SELECT TR.TRNOMETREINO AS Nome FROM TREINO TR WHERE TR.TRCODTREINO = @CodigoTreino";
+            using var conn = _factory.CreateConnection();
+            var row = await conn.QueryFirstOrDefaultAsync(sql, new { CodigoTreino = codigoTreino });
+            if (row == null) return null;
+            return new Treino { Nome = (string)row.Nome };
         }
+
+        /// <summary>
+        /// Busca os detalhes completos de um treino pelo código.
+        /// </summary>
         public async Task<Treino> BuscarDetalhesTreino(int codigoTreino) {
-
-            string sql = $@"
-                        SELECT
-	                        TRCODTREINO,
-                            TRNOMETREINO,
-	                        TRDESCRICAOTREINO,
-                            TRDATAVENCIMENTO,
-                            TRMODALIDADE,
-                            TRLIMITEALUNO
-                        FROM TREINO
-                        WHERE
-                            TRCODTREINO = @obj0
-            ";
-            var parametros = Parametrizar(codigoTreino);
-
-            var dr = Query(sql, parametros);
-
-            if (await dr.ReadAsync()) {
-                var treino = new Treino();
-                treino.Codigo = dr.GetInt32("TRCODTREINO");
-                treino.Nome = dr.GetString("TRNOMETREINO");
-                treino.Descricao = dr.GetString("TRDESCRICAOTREINO");
-                treino.DataVencimento = dr.GetDateTime("TRDATAVENCIMENTO");
-                treino.Modalidade = (ModalidadeTreino) dr.GetByte("TRMODALIDADE");
-                treino.LimiteAlunos = dr.GetInt32("TRLIMITEALUNO");
-                return treino;
-            }
-            return new Treino();
+            const string sql = @"SELECT TRCODTREINO AS Codigo, TRNOMETREINO AS Nome, TRDESCRICAOTREINO AS Descricao,
+                                        TRDATAVENCIMENTO AS DataVencimento, TRMODALIDADE AS Modalidade, TRLIMITEALUNO AS LimiteAlunos
+                                 FROM TREINO WHERE TRCODTREINO = @CodigoTreino";
+            using var conn = _factory.CreateConnection();
+            var row = await conn.QueryFirstOrDefaultAsync(sql, new { CodigoTreino = codigoTreino });
+            if (row == null) return new Treino();
+            return new Treino {
+                Codigo = (int)row.Codigo,
+                Nome = (string)row.Nome,
+                Descricao = (string)row.Descricao,
+                DataVencimento = (DateTime)row.DataVencimento,
+                Modalidade = (ModalidadeTreino)(byte)row.Modalidade,
+                LimiteAlunos = (int)row.LimiteAlunos
+            };
         }
+
+        /// <summary>
+        /// Insere um novo treino no banco de dados e retorna o código gerado.
+        /// </summary>
         public async Task<int> InserirTreino(Treino treino) {
-            string sql = @"
-                INSERT INTO TREINO 
-                     (
-                         TRNOMETREINO,
-                         TRDESCRICAOTREINO,
-                         TRDATACRIACAO,
-                         TRDATAVENCIMENTO,
-                         TRCODCRIADOR,
-                         TRMODALIDADE,
-                         TRLIMITEALUNO
-                     )
-                    OUTPUT INSERTED.TRCODTREINO
-                VALUES
-                    (
-                        @obj0,
-                        @obj1,
-                        @obj2,
-                        @obj3,
-                        @obj4,
-                        @obj5,
-                        @obj6
-                    )
-            ";
-
-            var parametros = Parametrizar(treino.Nome, treino.Descricao, DateTime.Now, DateTime.Now, treino.Criador.Codigo, treino.Modalidade, treino.LimiteAlunos);
-
-            var dr =Query(sql, parametros);
-
-            if (await dr.ReadAsync()) {
-                return dr.GetInt32("TRCODTREINO");
-            }
-            return 0;
+            const string sql = @"INSERT INTO TREINO (TRNOMETREINO, TRDESCRICAOTREINO, TRDATACRIACAO, TRDATAVENCIMENTO, TRCODCRIADOR, TRMODALIDADE, TRLIMITEALUNO)
+                                 OUTPUT INSERTED.TRCODTREINO
+                                 VALUES (@Nome, @Descricao, @DataCriacao, @DataVencimento, @CodigoCriador, @Modalidade, @LimiteAlunos)";
+            using var conn = _factory.CreateConnection();
+            return await conn.QuerySingleAsync<int>(sql, new {
+                treino.Nome,
+                treino.Descricao,
+                DataCriacao = DateTime.Now,
+                treino.DataVencimento,
+                CodigoCriador = treino.Criador.Codigo,
+                treino.Modalidade,
+                treino.LimiteAlunos
+            });
         }
+
+        /// <summary>
+        /// Atualiza os dados de um treino existente no banco de dados.
+        /// </summary>
         public async Task AtualizarTreino(Treino treino) {
-            string sql = @"
-                    UPDATE TREINO
-                    SET TRNOMETREINO = @obj0,
-                        TRDESCRICAOTREINO = @obj1,
-                        TRDATAVENCIMENTO = @obj2,
-                        TRMODALIDADE = @obj3,
-                        TRLIMITEALUNO = @obj4
-                    WHERE
-                        TRCODTREINO = @obj5
-            ";
-
-            var parametros = Parametrizar(treino.Nome, treino.Descricao, treino.DataVencimento, treino.Modalidade, treino.LimiteAlunos, treino.Codigo);
-
-            await NonQuery(sql, parametros);
+            const string sql = @"UPDATE TREINO SET TRNOMETREINO = @Nome, TRDESCRICAOTREINO = @Descricao,
+                                        TRDATAVENCIMENTO = @DataVencimento, TRMODALIDADE = @Modalidade, TRLIMITEALUNO = @LimiteAlunos
+                                 WHERE TRCODTREINO = @Codigo";
+            using var conn = _factory.CreateConnection();
+            await conn.ExecuteAsync(sql, new { treino.Nome, treino.Descricao, treino.DataVencimento, treino.Modalidade, treino.LimiteAlunos, treino.Codigo });
         }
+
+        /// <summary>
+        /// Retorna a lista de alunos inscritos em um treino.
+        /// </summary>
         public async Task<List<Conta>> BuscarAlunos(int codigoTreino) {
-
-            var alunos = new List<Conta>();
-
-            string sql = @"
-                SELECT
-	                CO.COCODCONTA,
-	                CO.CONOMECONTA,
-	                CO.COEMAIL
-                FROM TREINOALUNO TA
-                INNER JOIN CONTA CO ON CO.COCODCONTA = TA.TACODALUNO
-                WHERE
-                 TA.TACODTREINO = @obj0"
-            ;
-
-            var parametros = Parametrizar(codigoTreino);
-
-            var dr = Query(sql, parametros);
-
-            while (await dr.ReadAsync()) {
-                var conta = new Conta();
-                conta.Codigo = dr.GetInt32("COCODCONTA");
-                conta.Nome = dr.GetString("CONOMECONTA");
-                conta.Email = dr.GetString("COEMAIL");
-                alunos.Add(conta);
-            }
-            return alunos;
+            const string sql = @"SELECT CO.COCODCONTA AS Codigo, CO.CONOMECONTA AS Nome, CO.COEMAIL AS Email
+                                 FROM TREINOALUNO TA
+                                 INNER JOIN CONTA CO ON CO.COCODCONTA = TA.TACODALUNO
+                                 WHERE TA.TACODTREINO = @CodigoTreino";
+            using var conn = _factory.CreateConnection();
+            var result = await conn.QueryAsync<Conta>(sql, new { CodigoTreino = codigoTreino });
+            return result.ToList();
         }
+
+        /// <summary>
+        /// Adiciona um aluno ao treino pelo email e retorna o código do aluno.
+        /// </summary>
         public async Task<int> AdicionarAluno(int codigoTreino, string emailAluno) {
-            string sql = @"
-                    INSERT INTO TREINOALUNO
-                     (
-                         TACODTREINO,
-                         TACODALUNO
-                     )
-                    OUTPUT INSERTED.TACODALUNO
-                    VALUES ( @obj0, (SELECT COCODCONTA FROM CONTA WHERE COEMAIL = @obj1) )
-            ";
-
-            var parametros = Parametrizar(codigoTreino, emailAluno);
-
-            var dr = Query(sql, parametros);
-
-            if (await dr.ReadAsync()) {
-                return dr.GetInt32("TACODALUNO");
-            }
-            return 0;
+            const string sql = @"INSERT INTO TREINOALUNO (TACODTREINO, TACODALUNO)
+                                 OUTPUT INSERTED.TACODALUNO
+                                 VALUES (@CodigoTreino, (SELECT COCODCONTA FROM CONTA WHERE COEMAIL = @EmailAluno))";
+            using var conn = _factory.CreateConnection();
+            return await conn.QuerySingleAsync<int>(sql, new { CodigoTreino = codigoTreino, EmailAluno = emailAluno });
         }
+
+        /// <summary>
+        /// Deleta um treino do banco de dados pelo código.
+        /// </summary>
         public async Task DeletarTreino(int codigoTreino) {
-            string sql = @"
-                    DELETE FROM TREINO
-                    WHERE TRCODTREINO = @obj0
-            ";
-            var parametros = Parametrizar(codigoTreino);
-
-            await NonQuery(sql, parametros);
+            const string sql = "DELETE FROM TREINO WHERE TRCODTREINO = @CodigoTreino";
+            using var conn = _factory.CreateConnection();
+            await conn.ExecuteAsync(sql, new { CodigoTreino = codigoTreino });
         }
+
+        /// <summary>
+        /// Remove todos os alunos associados a um treino.
+        /// </summary>
         public async Task DeletarAlunosTreino(int codigoTreino) {
-            string sql = @"
-                    DELETE FROM TREINOALUNO
-                    WHERE TACODTREINO = @obj0
-            ";
-            var parametros = Parametrizar(codigoTreino);
-
-            await NonQuery(sql, parametros);
+            const string sql = "DELETE FROM TREINOALUNO WHERE TACODTREINO = @CodigoTreino";
+            using var conn = _factory.CreateConnection();
+            await conn.ExecuteAsync(sql, new { CodigoTreino = codigoTreino });
         }
+
+        /// <summary>
+        /// Remove um aluno específico de um treino.
+        /// </summary>
         public async Task RemoverAluno(int codigoTreino, int codigoConta) {
-            string sql = @"
-                        DELETE FROM TREINOALUNO
-                        WHERE TACODTREINO = @obj0 AND TACODALUNO = @obj1
-            ";
-
-            var parametros = Parametrizar(codigoTreino, codigoConta);
-
-            await NonQuery(sql, parametros);
+            const string sql = "DELETE FROM TREINOALUNO WHERE TACODTREINO = @CodigoTreino AND TACODALUNO = @CodigoConta";
+            using var conn = _factory.CreateConnection();
+            await conn.ExecuteAsync(sql, new { CodigoTreino = codigoTreino, CodigoConta = codigoConta });
         }
     }
 }

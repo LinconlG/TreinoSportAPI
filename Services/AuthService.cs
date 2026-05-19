@@ -3,30 +3,45 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TreinoSportAPI.Models;
+using TreinoSportAPI.Services.Interfaces;
 
 namespace TreinoSportAPI.Services {
-    public class AuthService {
+    public class AuthService : IAuthService {
         private readonly IConfiguration _configuration;
-        private readonly LoginService _loginService;
+        private readonly ILoginService _loginService;
 
-        public AuthService(IConfiguration configuration, LoginService loginService) {
+        public AuthService(IConfiguration configuration, ILoginService loginService) {
             _configuration = configuration;
             _loginService = loginService;
         }
 
 
+        /// <summary>
+        /// Autentica um usuário verificando email e senha. Retorna a conta autenticada ou null se inválido.
+        /// </summary>
         public async Task<Conta?> Authenticate(Conta user) {
-            var conta = await _loginService.Login(user.Email, user.Senha);
-            if (conta != null) {
-                conta.Email = user.Email;
-                return conta;
+            try {
+                var conta = await _loginService.Login(user.Email, user.Senha);
+                if (conta != null) {
+                    conta.Email = user.Email;
+                    return conta;
+                }
+                return null;
             }
-            return null;
+            catch {
+                return null;
+            }
         }
 
+        /// <summary>
+        /// Gera um token JWT para a conta autenticada.
+        /// </summary>
         public string GenerateToken(Conta user) {
 
-            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
+            var key = Encoding.ASCII.GetBytes(
+                Environment.GetEnvironmentVariable("JWT_SECRET") 
+                ?? _configuration["Jwt:Key"] 
+                ?? throw new InvalidOperationException("JWT secret not configured."));
 
             //tem as infos para gerar o token
             var tokenDescriptor = new SecurityTokenDescriptor {

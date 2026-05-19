@@ -1,37 +1,29 @@
-﻿using System.Data;
+﻿using Dapper;
 using TreinoSportAPI.Mappers.Connection;
+using TreinoSportAPI.Mappers.Interfaces;
 using TreinoSportAPI.Models;
-using TreinoSportAPI.Utilities;
 
 namespace TreinoSportAPI.Mappers {
-    public class LoginMapper : BaseMapper {
+    public class LoginMapper : ILoginMapper {
 
-        public async Task<Conta> CheckLogin(string email, string senha) {
-            string sql = @"
-                    SELECT
-                        COCODCONTA,
-                        CONOMECONTA,
-                        CODESCRICAO,
-                        COISCENTRO
-                    FROM CONTA
-                    WHERE
-                        COEMAIL = @obj0
-                    AND COSENHA = @obj1
-            ";
+        private readonly SqlConnectionFactory _factory;
 
-            var parametros = Parametrizar(email, senha);
+        public LoginMapper(SqlConnectionFactory factory) {
+            _factory = factory;
+        }
 
-            var dr = Query(sql, parametros);
-
-            if (await dr.ReadAsync()) {
-                var conta = new Conta();
-                conta.Codigo = dr.GetInt32("COCODCONTA");
-                conta.Descricao = dr.IsDBNull("CODESCRICAO") ? null : dr.GetString("CODESCRICAO");
-                conta.Nome = dr.GetString("CONOMECONTA");
-                conta.IsCentroTreinamento = dr.GetBoolean("COISCENTRO");
-                return conta;
-            }
-            return null;
+        /// <summary>
+        /// Busca a conta pelo email para verificação de credenciais.
+        /// </summary>
+        public async Task<Conta> CheckLogin(string email) {
+            const string sql = @"SELECT COCODCONTA AS Codigo, CONOMECONTA AS Nome,
+                                        CODESCRICAO AS Descricao, COISCENTRO AS IsCentroTreinamento,
+                                        COSENHA AS Senha
+                                 FROM CONTA
+                                 WHERE COEMAIL = @Email";
+            using var conn = _factory.CreateConnection();
+            return await conn.QueryFirstOrDefaultAsync<Conta>(sql, new { Email = email });
         }
     }
 }
+

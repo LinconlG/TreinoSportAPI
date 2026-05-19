@@ -1,20 +1,38 @@
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
+using System.Threading.RateLimiting;
 using TreinoSportAPI.BackgroundService;
-using TreinoSportAPI.MapperNoSQL;
-using TreinoSportAPI.MapperNoSQL.Connection;
+using TreinoSportAPI.Mappers.NoSQL;
+using TreinoSportAPI.Mappers.NoSQL.Connection;
 using TreinoSportAPI.Mappers;
+using TreinoSportAPI.Mappers.Connection;
+using TreinoSportAPI.Mappers.Interfaces;
 using TreinoSportAPI.Services;
 using TreinoSportAPI.Services.Interfaces;
 using TreinoSportAPI.Utilities;
+using TreinoSportAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options => {
+        options.InvalidModelStateResponseFactory = context => {
+            var errors = context.ModelState
+                .Where(e => e.Value.Errors.Count > 0)
+                .SelectMany(e => e.Value.Errors.Select(err => err.ErrorMessage))
+                .ToList();
+            var apiError = new TreinoSportAPI.Models.ApiError(
+                string.Join("; ", errors), true);
+            return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(apiError);
+        };
+    });
 
 builder.Services.AddAuthentication(
         CertificateAuthenticationDefaults.AuthenticationScheme)
@@ -23,54 +41,61 @@ builder.Services.AddAuthentication(
 builder.Services.AddHostedService<RenovarAulasBackground>();
 
 builder.Services.AddSingleton<MongoDBConnection>();
+builder.Services.AddSingleton<SqlConnectionFactory>();
 
 builder.Services.AddTransient<IEmailService, EmailService>();
 
-builder.Services.AddScoped<ContaService>();
-builder.Services.AddScoped<LoginService>();
-builder.Services.AddScoped<TreinoService>();
-builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IContaService, ContaService>();
+builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<ITreinoService, TreinoService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddTransient<GlobalExceptionMiddleware>();
+builder.Services.AddHttpClient<UsuarioService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
-builder.Services.AddScoped<ContaMapper>();
-builder.Services.AddScoped<LoginMapper>();
-builder.Services.AddScoped<TreinoMapper>();
-builder.Services.AddScoped<TreinoMapperNoSQL>();
+builder.Services.AddScoped<IContaMapper, ContaMapper>();
+builder.Services.AddScoped<ILoginMapper, LoginMapper>();
+builder.Services.AddScoped<ITreinoMapper, TreinoMapper>();
+builder.Services.AddScoped<ITreinoMapperNoSQL, TreinoMapperNoSQL>();
 
-UtilEnvironment.Load(builder.Configuration);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
-var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
+    ?? builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtSecret))
+    throw new InvalidOperationException("JWT secret is not configured. Set the JWT_SECRET environment variable.");
+var key = Encoding.ASCII.GetBytes(jwtSecret);
 builder.Services.AddAuthentication(auth => {
-    // Define o esquema padrão de autenticação como JWT Bearer
+    // Define o esquema padrï¿½o de autenticaï¿½ï¿½o como JWT Bearer
     auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    // Define o esquema padrão para desafios de autenticação
+    // Define o esquema padrï¿½o para desafios de autenticaï¿½ï¿½o
     auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(jwt => {
-    // Não requer HTTPS para desenvolvimento (remova em produção)
+    // Nï¿½o requer HTTPS para desenvolvimento (remova em produï¿½ï¿½o)
     jwt.RequireHttpsMetadata = false;
-    // Indica que o token deve ser salvo após a validação
+    // Indica que o token deve ser salvo apï¿½s a validaï¿½ï¿½o
     jwt.SaveToken = true;
-    // Parâmetros de validação do token
+    // Parï¿½metros de validaï¿½ï¿½o do token
     jwt.TokenValidationParameters = new TokenValidationParameters {
         // Valida a assinatura do token
         ValidateIssuerSigningKey = true,
-        // Define a chave de segurança usada para validar a assinatura
+        // Define a chave de seguranï¿½a usada para validar a assinatura
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        // Não valida o emissor
+        // Nï¿½o valida o emissor
         ValidateIssuer = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        // Não valida a audiência
+        // Nï¿½o valida a audiï¿½ncia
         ValidateAudience = true,
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        // Valida o tempo de expiração do token
+        // Valida o tempo de expiraï¿½ï¿½o do token
         ValidateLifetime = true,
-        // Remove a tolerância padrão de 5 minutos para expiração
+        // Remove a tolerï¿½ncia padrï¿½o de 5 minutos para expiraï¿½ï¿½o
         ClockSkew = TimeSpan.Zero
     };
 
     jwt.Events = new JwtBearerEvents {
         OnAuthenticationFailed = context => {
-            Console.WriteLine($"Falha na autenticação: {context.Exception.Message}");
+            Console.WriteLine($"Falha na autenticaï¿½ï¿½o: {context.Exception.Message}");
             return Task.CompletedTask;
         },
         OnTokenValidated = context => {
@@ -84,10 +109,11 @@ builder.Services.AddAuthentication(auth => {
 
 
 
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAngularDev",
         policy => policy
-            .WithOrigins("http://192.168.15.4:4200", "http://192.168.15.5:4200", "http://192.168.15.2:4200")
+            .WithOrigins(corsOrigins)
             .AllowAnyMethod()
             .AllowAnyHeader());
             //.AllowCredentials());
@@ -96,7 +122,36 @@ builder.WebHost.ConfigureKestrel(serverOptions => {
     serverOptions.ListenAnyIP(5050); // Porta desejada
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => {
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Insira o token JWT no campo abaixo."
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
+});
+
+builder.Services.AddRateLimiter(options => {
+    options.AddFixedWindowLimiter("PasswordReset", opt => {
+        opt.PermitLimit = 3;
+        opt.Window = TimeSpan.FromMinutes(15);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+});
 
 var app = builder.Build();
 
@@ -111,6 +166,8 @@ if (app.Environment.IsDevelopment()) {
 // Use isso ANTES de UseAuthorization() e MapControllers()
 app.UseCors("AllowAngularDev");
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 

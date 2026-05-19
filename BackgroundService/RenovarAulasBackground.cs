@@ -1,14 +1,12 @@
 ﻿
-using TreinoSportAPI.MapperNoSQL;
-using TreinoSportAPI.MapperNoSQL.Connection;
-using TreinoSportAPI.Services;
+using TreinoSportAPI.Mappers.Interfaces;
 using TreinoSportAPI.Utilities;
 
 namespace TreinoSportAPI.BackgroundService {
     public class RenovarAulasBackground : Microsoft.Extensions.Hosting.BackgroundService {
-        private TreinoMapperNoSQL _treinoNoSQL;
-        public RenovarAulasBackground(MongoDBConnection mongoDBConnection) {
-            _treinoNoSQL = new(mongoDBConnection);
+        private readonly ITreinoMapperNoSQL _treinoNoSQL;
+        public RenovarAulasBackground(ITreinoMapperNoSQL treinoMapperNoSQL) {
+            _treinoNoSQL = treinoMapperNoSQL;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
@@ -37,6 +35,8 @@ namespace TreinoSportAPI.BackgroundService {
                         {
                             horario.AlunosPresentes.Clear();
                         }
+
+                        await _treinoNoSQL.AtualizarDiasHorarios(treino);
                     }
                 }
             }
